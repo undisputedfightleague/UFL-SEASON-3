@@ -150,22 +150,44 @@ input,select{ padding:8px; border-radius:6px; background:rgba(0,0,0,0.36); color
   .fights-columns,.fights-row{ grid-template-columns:1fr 120px 100px 100px; }
 }
 
-/* ✅ Make Admin Panel responsive and vertical on small screens */
+/* ✅ Stack admin panels vertically on small screens */
 @media (max-width: 900px) {
-  #admin-tab > div[style*="display:grid"] {
-    grid-template-columns: 1fr !important; /* Stack sections vertically */
+  #admin-tab > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important; /* stack vertically */
   }
+}
 
-  /* Ensure wide inner boxes fit fully within viewport */
-  #admin-tab .frosted {
-    max-width: 100% !important;
-    box-sizing: border-box;
-  }
+/* ✅ Force Admin Panel into one vertical column on small screens */
+@media (max-width: 900px) {
 
-  /* Prevent champion title manager from overflowing */
-  #champion-titles-container {
-    grid-template-columns: 1fr !important;
-  }
+/* The main admin grid that holds all sections */
+#admin-tab > div {
+  display: grid !important;
+  grid-template-columns: 1fr !important; /* stack everything vertically */
+  gap: 12px !important;
+}
+
+/* All inner boxes and sections */
+#admin-tab .frosted {
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Force nested grids (like Champion Title Management) to be single-column */
+#champion-titles-container {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+}
+
+/* Make sure inner content fits */
+#admin-tab select,
+#admin-tab input,
+#admin-tab button,
+#admin-tab table {
+  max-width: 100% !important;
+}
 }
 
 html, body {
@@ -179,6 +201,13 @@ html, body {
 
 @media (min-width:900px) {
   .tabs { justify-content: center; }
+}
+
+/* ✅ Guaranteed fix: Stack admin grid vertically on small screens */
+@media (max-width: 900px) {
+  #admin-grid {
+    grid-template-columns: 1fr !important;  /* force one column */
+  }
 }
 
 </style>
@@ -333,7 +362,7 @@ html, body {
       </div>
     </div>
     
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div id="admin-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     
       <!-- ADD FIGHTER -->
       <div class="frosted">
