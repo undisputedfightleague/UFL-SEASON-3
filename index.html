@@ -143,111 +143,91 @@ input,select{ padding:8px; border-radius:6px; background:rgba(0,0,0,0.36); color
   width: 80px;
 }
 
+/* ---------- RESPONSIVE RULES (CONSOLIDATED) ---------- */
+
+/* Small screen adjustments (generic) */
 @media (max-width:900px){
-  .grid-main{ grid-template-columns:1fr; }
+  .grid-main{ grid-template-columns:1fr !important; }
   .champ-card{ margin:0 auto; max-width:420px; }
   .tabs{ justify-content:flex-start; overflow:auto; padding-left:8px; }
   .fights-columns,.fights-row{ grid-template-columns:1fr 120px 100px 100px; }
 }
 
-/* ✅ Stack admin panels vertically on small screens */
-@media (max-width: 900px) {
-  #admin-tab > div[style*="grid-template-columns"] {
-    grid-template-columns: 1fr !important; /* stack vertically */
+/* ---------- ADMIN GRID — single authoritative block ---------- */
+
+/* Desktop: admin grid two columns */
+#admin-grid {
+  display: grid;                    /* ensure grid layout is explicitly set */
+  grid-template-columns: 1fr 1fr;   /* two columns on desktop */
+  grid-auto-rows: auto;
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Child boxes are allowed to shrink (prevents narrow collapsed columns) */
+#admin-grid > .frosted {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0; /* CRITICAL: allow shrinking in grid items */
+}
+
+/* If some children use inline spanning (grid-column:span 2) let desktop keep that */
+#admin-grid > .frosted[style*="grid-column"] {
+  /* no change on desktop; preserves visual spanning */
+}
+
+/* ---------- Mobile: force one-column stack and neutralize inline spans ---------- */
+@media (max-width:900px) {
+
+  /* Force single-column grid on mobile (keeps source order) */
+  #admin-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  /* Neutralize any inline grid-column spans that may exist on children */
+  #admin-grid > .frosted[style*="grid-column"] {
+    grid-column: auto !important;
+  }
+
+  /* Make sure each child fills width and can shrink properly */
+  #admin-grid > .frosted {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Ensure controls inside admin do not force overflow */
+  #admin-grid input,
+  #admin-grid select,
+  #admin-grid button,
+  #admin-grid table {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
   }
 }
 
-/* ✅ Force Admin Panel into one vertical column on small screens */
-@media (max-width: 900px) {
-
-/* The main admin grid that holds all sections */
-#admin-tab > div {
-  display: grid !important;
-  grid-template-columns: 1fr !important; /* stack everything vertically */
-  gap: 12px !important;
-}
-
-/* All inner boxes and sections */
-#admin-tab .frosted {
-  max-width: 100% !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  overflow-x: hidden !important;
-}
-
-/* Force nested grids (like Champion Title Management) to be single-column */
-#champion-titles-container {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-}
-
-/* Make sure inner content fits */
-#admin-tab select,
-#admin-tab input,
-#admin-tab button,
-#admin-tab table {
-  max-width: 100% !important;
-}
-}
-
+/* ---------- keep other global rules intact ---------- */
 html, body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* ✅ prevents horizontal scroll wobble */
-  background-color: #000; /* ✅ ensure black background */
+  overflow-x: hidden; /* prevents horizontal scroll wobble */
+  background-color: #000;
 }
 
 @media (min-width:900px) {
   .tabs { justify-content: center; }
-}
-
-/* ✅ Guaranteed fix: Stack admin grid vertically on small screens */
-@media (max-width: 900px) {
-  #admin-grid {
-    grid-template-columns: 1fr !important;  /* force one column */
-  }
-}
-
-
-/* ✅ Properly define Admin Grid Layout */
-#admin-grid {
-  display: grid; /* ← you were missing this line */
-  grid-template-columns: 1fr 1fr; /* desktop: two columns */
-  grid-auto-rows: auto;
-  align-items: start;
-  gap: 16px;
-}
-
-/* ✅ Mobile stacking fix */
-@media (max-width: 900px) {
-  #admin-grid {
-    display: flex !important;
-    flex-direction: column !important; /* stack vertically */
-    gap: 14px !important;
-  }
-
-  #admin-grid > .frosted {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-}
-
-/* Mobile: stack the admin boxes vertically in source order */
-@media (max-width: 900px) {
-  #admin-grid {
-    grid-template-columns: 1fr !important;  /* single column on small screens */
-    gap: 12px !important;
-  }
-
-  /* Ensure each frosted box fills the width */
-  #admin-grid > .frosted {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
 }
 
 </style>
