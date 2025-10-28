@@ -210,6 +210,46 @@ html, body {
   }
 }
 
+
+/* ✅ Properly define Admin Grid Layout */
+#admin-grid {
+  display: grid; /* ← you were missing this line */
+  grid-template-columns: 1fr 1fr; /* desktop: two columns */
+  grid-auto-rows: auto;
+  align-items: start;
+  gap: 16px;
+}
+
+/* ✅ Mobile stacking fix */
+@media (max-width: 900px) {
+  #admin-grid {
+    display: flex !important;
+    flex-direction: column !important; /* stack vertically */
+    gap: 14px !important;
+  }
+
+  #admin-grid > .frosted {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Mobile: stack the admin boxes vertically in source order */
+@media (max-width: 900px) {
+  #admin-grid {
+    grid-template-columns: 1fr !important;  /* single column on small screens */
+    gap: 12px !important;
+  }
+
+  /* Ensure each frosted box fills the width */
+  #admin-grid > .frosted {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -362,7 +402,7 @@ html, body {
       </div>
     </div>
     
-    <div id="admin-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div id="admin-grid" style="display:grid; gap:12px;">
     
       <!-- ADD FIGHTER -->
       <div class="frosted">
@@ -385,7 +425,7 @@ html, body {
           padding:16px;
           background:rgba(255,255,255,0.05);
           backdrop-filter:blur(6px);
-          max-width:500px;
+          max-width:100%;
           display:flex;
           flex-direction:column;
           gap:10px;
