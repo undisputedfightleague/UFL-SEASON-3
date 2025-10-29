@@ -2094,6 +2094,8 @@ async function saveChampionAssignments() {
       alert('Fighter added.');
     }).catch(e=>{ console.error(e); alert('Failed to add fighter'); });
   }
+
+window.adminAddFighter = adminAddFighter;
   
   /* Recompute ALL fighter stats from fights (safe canonical source of truth) */
   async function recomputeAllFighterStats(){
@@ -2476,12 +2478,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   </script>
   
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("admin-login").classList.add("hidden");
-      document.getElementById("admin-dashboard").classList.remove("hidden");
-    });
-    </script>
+  
     
 
   </body>
