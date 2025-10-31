@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>UFL WORLD & CAF RANKINGS - FINAL V4</title>
 
+
+
 <!-- Firebase (compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
@@ -26,42 +28,58 @@ body{
     linear-gradient(45deg, rgba(255,255,255,0.015) 0%, rgba(0,0,0,0.05) 50%, rgba(255,255,255,0.01) 100%);
   color:#fff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   min-height:100vh; padding-bottom:48px;
+
+    padding-top: 70px; /* leave space for sticky tab bar */
+
 }
 
-.container {
-  max-width: 1100px;
-  margin: 18px auto;
-  padding: 0 16px;
-  box-sizing: border-box; /* ✅ prevents overflow “wobble” */
-}
-
+.container{ max-width:1100px; margin:18px auto; padding:0 16px; }
 .frosted{ background:var(--card-bg); border:1px solid rgba(255,215,0,0.06); backdrop-filter: blur(7px); padding:14px; border-radius:12px; }
 .header{ font-family:'Orbitron',sans-serif; font-size:28px; color:var(--gold); text-align:center; margin-bottom:6px; }
 .submuted{ color:var(--muted); font-size:13px; text-align:center; margin-bottom:8px; }
 
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: 6px 8px;
-  justify-content: flex-start;
-  flex-wrap: nowrap;             /* ❌ disable wrapping */
-  overflow-x: auto;              /* ✅ enable horizontal scroll */
-  overflow-y: hidden;
-  scrollbar-width: thin;         /* firefox thin scrollbar */
-  scroll-behavior: smooth;       /* smooth drag/scroll */
-  -webkit-overflow-scrolling: touch; /* mobile momentum scroll */
-}
-.tabs::-webkit-scrollbar {
-  height: 6px;
-}
-.tabs::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
-  border-radius: 4px;
-}
-
+.tabs{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; justify-content:center; }
 .tab-btn{ background:transparent; border:0; padding:8px 12px; cursor:pointer; color:#ddd; border-bottom:2px solid transparent; font-family:'Orbitron'; font-size:13px; text-transform:uppercase; letter-spacing:1px; }
 .tab-active{ color:var(--gold); border-bottom-color:var(--gold); }
+
+/* 📱 Mobile tab bar fix */
+.tabs {
+  position: sticky;            /* stays visible when scrolling */
+  top: 0;
+  z-index: 999;                /* keeps it above content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;           /* keep buttons on one line */
+  overflow-x: auto;            /* allow horizontal scroll if needed */
+  gap: 6px;
+  padding: 8px 4px;
+  background: rgba(0, 0, 0, 0.85);  /* dark semi-transparent bar */
+  backdrop-filter: blur(6px);       /* subtle blur */
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2); /* gold divider */
+}
+
+/* hide scrollbar visually but keep touch scroll */
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  flex: 0 0 auto;              /* prevent shrinking */
+  white-space: nowrap;         /* keep text on one line */
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+/* mobile layout tweaks */
+@media (max-width: 768px) {
+  .tabs {
+    justify-content: flex-start;  /* align to left on mobile */
+    padding: 10px;
+  }
+}
+
 
 .grid-main{ display:grid; grid-template-columns:320px 1fr; gap:18px; align-items:start; }
 .champion-card{ border-radius:14px; padding:18px; border:1px solid rgba(255,215,0,0.16); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12)); animation: floaty 6s ease-in-out infinite; position:relative; }
@@ -97,15 +115,41 @@ input,select{ padding:8px; border-radius:6px; background:rgba(0,0,0,0.36); color
 .players-column-left{ width:70%; display:flex; align-items:center; gap:8px; }
 .players-column-right{ width:30%; text-align:right; }
 
+/* Fights layout: Date | Fight | Method | Winner */
+.fights-columns {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 140px; /* narrower Date column */
+  gap: 14px; /* wider gap between all columns */
+  width: 100%;
+  font-weight: 700;
+  color: var(--gold);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 6px;
+  align-items: center;
+}
+
 .fights-row {
   display: grid;
-  grid-template-columns: 120px 1fr 140px 160px; /* DATE | FIGHT | METHOD | WINNER */
-  gap: 16px; /* ✅ extra space for readability */
+  grid-template-columns: 100px 1fr 120px 140px;
+  gap: 14px;
   align-items: center;
   width: 100%;
-  padding: 10px 6px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 14px;
 }
+
+/* mobile adjustments */
+@media (max-width: 900px) {
+  .fights-columns,
+  .fights-row {
+    grid-template-columns: 70px 1fr 80px 100px;
+    font-size: 13px;
+    gap: 10px;
+  }
+}
+
+
 
 .streak{ font-size:14px; margin-right:6px; }
 .streak.hot{ color:#ffb86b; }
@@ -115,8 +159,24 @@ input,select{ padding:8px; border-radius:6px; background:rgba(0,0,0,0.36); color
 .breakdown{ border-top:1px solid rgba(255,215,0,0.08); margin-top:12px; padding-top:10px; color:var(--muted); font-size:13px; }
 .breakdown strong{ color:var(--gold); }
 
-.badge{ margin-right:8px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,215,0,0.15); font-size:14px; cursor:help; transition:all 0.15s ease; display:inline-block; }
-.badge:hover{ background:rgba(255,215,0,0.08); transform:translateY(-2px); }
+.badge {
+  margin-right: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,215,0,0.15);
+  font-size: 14px;
+  cursor: pointer; /* 👈 changed from help → pointer */
+  transition: transform 0.15s ease, background 0.15s ease;
+  display: inline-block;
+  color: #facc15; /* gold tone for consistency */
+}
+
+.badge:hover {
+  background: rgba(255,215,0,0.1);
+  transform: scale(1.1); /* 👈 subtle pop on hover */
+}
+
 
 .rank-num{width:40px;text-align:center;color:#9ca3af;font-weight:700;margin-right:8px;}
 .fighter-row {
@@ -143,92 +203,305 @@ input,select{ padding:8px; border-radius:6px; background:rgba(0,0,0,0.36); color
   width: 80px;
 }
 
-/* ---------- RESPONSIVE RULES (CONSOLIDATED) ---------- */
-
-/* Small screen adjustments (generic) */
 @media (max-width:900px){
-  .grid-main{ grid-template-columns:1fr !important; }
+  .grid-main{ grid-template-columns:1fr; }
   .champ-card{ margin:0 auto; max-width:420px; }
   .tabs{ justify-content:flex-start; overflow:auto; padding-left:8px; }
   .fights-columns,.fights-row{ grid-template-columns:1fr 120px 100px 100px; }
 }
 
-/* ---------- ADMIN GRID — single authoritative block ---------- */
 
-/* Desktop: admin grid two columns */
-#admin-grid {
-  display: grid;                    /* ensure grid layout is explicitly set */
-  grid-template-columns: 1fr 1fr;   /* two columns on desktop */
-  grid-auto-rows: auto;
-  gap: 16px;
-  align-items: start;
-  width: 100%;
-  box-sizing: border-box;
+
+/* Hide inactive tab content */
+.tab-content.hidden { display: none; }
+
+/* 🏠 HOME TAB STYLES */
+#home-tab {
+  text-align: center;
+  padding: 40px 20px;
 }
 
-/* Child boxes are allowed to shrink (prevents narrow collapsed columns) */
-#admin-grid > .frosted {
+#home-tab h1 {
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+#home-tab {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#home-tab h1 {
+  text-align: center;  /* keep only the main title centered */
+}
+
+#home-tab h2,
+#home-tab p,
+#home-tab ul {
+  text-align: left;    /* align all other text to the left */
+}
+
+
+#home-tab p {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin: 6px 0;
+}
+
+/* 🧩 Make player cards act like modals */
+.player-card-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 10px 20px 10px;
+}
+
+/* 🚫 Lock background scroll when modal is open */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+}
+
+/* Ensure modal always covers everything */
+#fighter-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 5000; /* above .tabs (z=999) */
+  overflow-y: auto;
+}
+
+/* 📱 Prevent horizontal scroll on mobile */
+html, body {
+  overflow-x: hidden;
   width: 100%;
   max-width: 100%;
+}
+
+/* Ensure all major containers respect viewport width */
+.container,
+#world-tab,
+#players-tab,
+#fights-tab,
+#caf-tab,
+#admin-tab {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Make sure tab bar doesn’t cause overflow */
+.tabs {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 🧱 Fix horizontal wobble on UFL WORLD tab */
+#world-tab {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+#world-tab * {
   box-sizing: border-box;
-  min-width: 0; /* CRITICAL: allow shrinking in grid items */
+  max-width: 100%;
 }
 
-/* If some children use inline spanning (grid-column:span 2) let desktop keep that */
-#admin-grid > .frosted[style*="grid-column"] {
-  /* no change on desktop; preserves visual spanning */
+/* Prevent champion card and rows from stretching too wide */
+#world-tab .champion-card {
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* ---------- Mobile: force one-column stack and neutralize inline spans ---------- */
-@media (max-width:900px) {
+/* 🟡 Player rows and headers now use grid (no wrap needed) */
+#world-tab .player-header-row,
+#world-tab .player-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px 80px; /* Rank | Fighter | Points | Record */
+  align-items: center;
+  text-align: left;
+  gap: 6px;
+}
 
-  /* Force single-column grid on mobile (keeps source order) */
-  #admin-grid {
-    display: grid !important;
+/* Prevent rank columns and side sections from forcing overflow */
+#world-tab .rank-num,
+#world-tab .players-column-left,
+#world-tab .players-column-right {
+  min-width: 0;
+}
+
+/* Responsive adjustment for smaller screens */
+@media (max-width: 600px) {
+  #world-tab .player-header-row,
+  #world-tab .player-row {
+    grid-template-columns: 36px 1fr 60px 60px;
+  }
+}
+
+/* 🎯 Force record and points columns to align evenly */
+#world-tab .player-row > .players-column-right:nth-last-child(2),
+#world-tab .player-row > .players-column-right:last-child {
+  text-align: right;
+  justify-self: end;
+  width: 80px;
+}
+
+/* Keep fighter name area flexible but contained */
+#world-tab .players-column-left {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure consistent grid alignment for headers too */
+#world-tab .player-header-row > div {
+  text-align: right;
+}
+#world-tab .player-header-row > div:first-child {
+  text-align: center;
+}
+#world-tab .player-header-row > div:nth-child(2) {
+  text-align: left;
+}
+
+
+/* 🧩 FINAL FIX – lock UFL WORLD row alignment */
+#world-tab .player-row {
+  display: grid !important;
+  grid-template-columns: 40px 1fr 70px 70px; /* Rank | Name | Points | Record */
+  align-items: center;
+  gap: 6px;
+}
+
+#world-tab .player-header-row {
+  display: grid !important;
+  grid-template-columns: 40px 1fr 70px 70px;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* Columns: */
+#world-tab .rank-num {
+  text-align: center;
+}
+
+#world-tab .players-column-left {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#world-tab .players-column-right {
+  text-align: right;
+  justify-self: end;
+  width: 70px;
+}
+
+/* Responsive tweak for smaller screens */
+@media (max-width: 600px) {
+  #world-tab .player-row,
+  #world-tab .player-header-row {
+    grid-template-columns: 32px 1fr 60px 60px;
+  }
+  #world-tab .players-column-right {
+    width: 60px;
+  }
+}
+
+/* 🎯 Enforce perfect alignment on all ranking rows */
+#world-tab .player-row,
+#world-tab .player-header-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 70px 70px;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+
+#world-tab .player-points,
+#world-tab .player-record {
+  text-align: right;
+  justify-self: end;
+}
+
+/* 🎯 Perfect alignment for UFL WORLD ranking rows (no points column) */
+#world-tab .fighter-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px; /* Rank | Name | Record */
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+
+#world-tab .rank-num {
+  text-align: center;
+}
+
+#world-tab .fighter-record {
+  text-align: right;
+  justify-self: end;
+  width: 80px;
+}
+
+#world-tab .fighter-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Match header row for alignment consistency */
+#world-tab .player-header-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* Responsive adjustment for smaller screens */
+@media (max-width: 600px) {
+  #world-tab .fighter-row,
+  #world-tab .player-header-row {
+    grid-template-columns: 36px 1fr 70px;
+  }
+  #world-tab .fighter-record {
+    width: 70px;
+  }
+}
+
+/* Make Admin dashboard stack to single column on smaller screens */
+@media (max-width: 900px) {
+  /* target the grid container which currently uses inline style display:grid */
+  #admin-dashboard > div[style*="display:grid"] {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
-    align-items: stretch !important;
   }
 
-  /* Neutralize any inline grid-column spans that may exist on children */
-  #admin-grid > .frosted[style*="grid-column"] {
+  /* Ensure any element using grid-column:span 2 stops spanning and just stacks */
+  #admin-dashboard > div[style*="display:grid"] .frosted[style*="grid-column:span 2"] {
     grid-column: auto !important;
   }
 
-  /* Make sure each child fills width and can shrink properly */
-  #admin-grid > .frosted {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* Ensure controls inside admin do not force overflow */
-  #admin-grid input,
-  #admin-grid select,
-  #admin-grid button,
-  #admin-grid table {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    min-width: 0 !important;
+  /* small spacing tweak so stacked cards don't feel cramped */
+  #admin-dashboard > div[style*="display:grid"] .frosted {
+    width: 100%;
   }
 }
 
-/* ---------- keep other global rules intact ---------- */
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* prevents horizontal scroll wobble */
-  background-color: #000;
-}
 
-@media (min-width:900px) {
-  .tabs { justify-content: center; }
-}
+
 
 </style>
 </head>
@@ -240,19 +513,74 @@ html, body {
     </div>
 <!-- END Part 1 of 6 -->
 <!-- START Part 2 of 6 -->
-<div class="tabs" role="tablist" aria-label="Main tabs">
-  <button id="btn-world" class="tab-btn tab-active" onclick="switchTab('world')"><i class="fas fa-globe-americas"></i>&nbsp;UFL WORLD</button>
-<button id="btn-rbc" class="tab-btn" onclick="switchTab('rbc')"><i class="fas fa-crown"></i>&nbsp;RBC</button>
-<button id="btn-abc" class="tab-btn" onclick="switchTab('abc')"><i class="fas fa-flag-usa"></i>&nbsp;ABC</button>
-<button id="btn-caf" class="tab-btn" onclick="switchTab('caf')"><i class="fas fa-user-pen"></i>&nbsp;UFC CAF</button>
-<button id="btn-players" class="tab-btn" onclick="switchTab('players')"><i class="fas fa-user-friends"></i>&nbsp;PLAYERS</button>
-<button id="btn-fights" class="tab-btn" onclick="switchTab('fights')"><i class="fas fa-list"></i>&nbsp;FIGHTS</button>
-<button id="btn-admin" class="tab-btn" onclick="switchTab('admin')"><i class="fas fa-lock"></i>&nbsp;ADMIN</button>
 
+<div class="tabs" role="tablist" aria-label="Main tabs">
+  <!-- 🏠 HOME button (new) -->
+  <button id="btn-home" class="tab-btn" onclick="switchTab('home')">
+    <i class="fas fa-home"></i>&nbsp;HOME
+  </button>
+
+  <button id="btn-world" class="tab-btn tab-active" onclick="switchTab('world')">
+    <i class="fas fa-globe-americas"></i>&nbsp;UFL WORLD
+  </button>
+  <button id="btn-caf" class="tab-btn" onclick="switchTab('caf')">
+    <i class="fas fa-user-pen"></i>&nbsp;UFL CAF
+  </button>
+  <button id="btn-players" class="tab-btn" onclick="switchTab('players')">
+    <i class="fas fa-user-friends"></i>&nbsp;PLAYERS
+  </button>
+  <button id="btn-fights" class="tab-btn" onclick="switchTab('fights')">
+    <i class="fas fa-list"></i>&nbsp;FIGHTS
+  </button>
+  <button id="btn-admin" class="tab-btn" onclick="switchTab('admin')">
+    <i class="fas fa-lock"></i>&nbsp;ADMIN
+  </button>
 </div>
+
 
 <div class="frosted">
   <!-- WORLD TAB -->
+
+<!-- 🏠 HOME TAB -->
+<div id="home-tab" class="tab-content">
+
+  <h1>UFL RANKINGS BREAKDOWN</h1>
+  
+
+  <ul style="list-style:none;padding:0;">
+    <br>
+    <li><b>BASE POINTS</b>
+
+      
+
+    <li>Win: +3 Points</li>
+    <li>Draw: +1 Point</li>
+    <li>Loss: - 1.5 (increasing with each consecutive loss)</li>
+    <br> </br>
+    <li><b>FINISH BONUS</b>
+      <li>TKO/KO Win: +1 Point</li>
+      <br> </br>
+      <li><b>OPPONENT QUALITY</b>
+        <li>Wins over opponents with high win percentages earns a small bonus</li>
+        <br> </br>
+        <li><b>RECENCY BONUS</b>
+          <li>Awards recent activity</li>
+          <br> </br>
+          <li><b>WINNING STREAK</b>
+            <li>After 3 consecutive wins, each additional win earns +1 (capped at +5)</li>
+            <br> </br>
+            <li><b>CONTENDER BONUS</b>
+              <li>Small bonus if either fighter is ranked inside the top 10</li>
+              <br> </br>
+              <li><b>INACTIVITY</b>
+                <li>After 20 days of inactivity, total points gradually decay</li>
+  
+  
+  
+  
+</div>
+
+
   <div id="world-tab" class="tab-panel">
     <div class="grid-main">
       <div>
@@ -266,38 +594,6 @@ html, body {
       </div>
     </div>
   </div>
-
-<!-- 🏆 RBC TAB -->
-<div id="rbc-tab" class="tab-panel hidden" style="margin-top:14px;">
-  <div class="grid-main">
-    <div>
-      <div id="rbc-champion-card" class="champion-card"></div>
-    </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h2 style="margin:0;font-family:Orbitron;">ROYAL BOXING COMMISSION</h2>
-      </div>
-      <div id="rbc-rankings" class="rank-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- 🏆 ABC TAB -->
-<div id="abc-tab" class="tab-panel hidden" style="margin-top:14px;">
-  <div class="grid-main">
-    <div>
-      <div id="abc-champion-card" class="champion-card"></div>
-    </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h2 style="margin:0;font-family:Orbitron;">AMERICAS BOXING COMMISSION</h2>
-      </div>
-      <div id="abc-rankings" class="rank-list"></div>
-    </div>
-  </div>
-</div>
-
-
 
   <!-- CAF TAB -->
   <div id="caf-tab" class="tab-panel hidden" style="margin-top:14px;">
@@ -316,24 +612,9 @@ html, body {
 
   <!-- PLAYERS TAB -->
   <div id="players-tab" class="tab-panel hidden" style="margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <h2 style="margin:0;font-family:Orbitron;">PLAYERS</h2>
-    
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input id="players-search" placeholder="Search players..." oninput="renderPlayers()" />
-        
-        <select id="players-filter" class="input" style="padding:6px;" onchange="renderPlayers()">
-          <option value="none">Filter: None</option>
-          <option value="mostKO">Most KO/TKO</option>
-          <option value="streak">Longest Winning Streak</option>
-          <option value="active">Most Active</option>
-          <option value="bonus">Most Bonuses (POTN/FOTN)</option>
-          <option value="champion">Current Champions</option>
-          <option value="formerChampion">Former Champions</option>
-        </select>
-    
-        <button class="btn" onclick="renderPlayers()">Apply</button>
-      </div>
+      <div><input id="players-search" placeholder="Search players..." oninput="renderPlayers()" /><button class="btn" onclick="renderPlayers()">Search</button></div>
     </div>
 
     <div class="players-header">
@@ -353,7 +634,7 @@ html, body {
       <div><input id="fights-search" placeholder="Search fights..." oninput="renderFights()" /><button class="btn" onclick="renderFights()">Search</button></div>
     </div>
 
-  
+
 
     <div id="fights-list" style="max-height:640px; overflow:auto;"></div>
   </div>
@@ -364,7 +645,9 @@ html, body {
   <div id="admin-tab" class="tab-panel hidden" style="margin-top:14px;">
     <div id="admin-login" class="frosted">
       <h3 style="margin:0;font-family:Orbitron;">Admin Login</h3>
-      <div class="small-muted">Enter admin password to unlock admin tools. (fallback: <code>ufltest123</code>)</div>
+      <div class="small-muted">Enter admin password to unlock admin tools.
+
+      </div>
       <div style="margin-top:10px;">
         <input id="admin-pass" type="password" placeholder="Admin password" />
         <div style="margin-top:8px;"><button class="btn btn-primary" onclick="attemptAdminLogin()">Login</button></div>
@@ -372,171 +655,204 @@ html, body {
       </div>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h2 style="margin:0;font-family:Orbitron;">Admin Dashboard</h2>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <span class="small-muted">Logged in</span>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-danger" onclick="logoutAdmin()">Logout</button>
-        </div>
+    <div id="admin-dashboard" class="hidden" style="margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h2 style="margin:0;font-family:Orbitron;">Admin Dashboard</h2>
+        <div style="display:flex;gap:8px;align-items:center;"><span class="small-muted">Logged in</span>
+          <div style="display:flex;gap:8px;"><button class="btn btn-danger" onclick="logoutAdmin()">Logout</button></div></div>
       </div>
-    </div>
-    
-    <div id="admin-grid" style="display:grid; gap:12px;">
-    
-      <!-- ADD FIGHTER -->
-      <div class="frosted">
-        <h3 style="margin:0 0 8px 0;">Add Fighter</h3>
-        <div class="small-muted">Add a new fighter to the roster with name and platform.</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+
+      <div class="admin-grid">
+
+        <hr style="margin:8px 0;">
+        <h4 style="margin:6px 0;">Add Fighter</h4>
+        <div style="display:flex;gap:8px;align-items:center;">
           <input id="add-fighter-name" placeholder="Name" style="flex:1;" />
-          <select id="add-fighter-platform"><option>PC</option><option>PS5</option><option>XBOX</option></select>
-          <button class="btn btn-primary" onclick="adminAddFighter()">Add</button>
-        </div>
-      </div>
-    
-      <!-- ADD FIGHT -->
-      <div class="frosted">
-        <h3 style="margin:0 0 8px 0;">Add Fight</h3>
-        <div class="small-muted">Enter new fight results for inclusion in rankings.</div>
-        <div style="
-          border:2px solid rgba(255,255,255,0.15);
-          border-radius:12px;
-          padding:16px;
-          background:rgba(255,255,255,0.05);
-          backdrop-filter:blur(6px);
-          max-width:100%;
-          display:flex;
-          flex-direction:column;
-          gap:10px;
-        ">
-          <label class="small-muted" for="add-fight-f1">FIGHTER 1</label>
-          <select id="add-fight-f1" class="input" style="width:100%;"></select>
-    
-          <label class="small-muted" for="add-fight-f2">FIGHTER 2</label>
-          <select id="add-fight-f2" class="input" style="width:100%;"></select>
-    
-          <label class="small-muted" for="add-fight-method">METHOD</label>
-          <select id="add-fight-method" class="input" style="width:100%;">
-            <option>KO/TKO</option>
-            <option>Decision</option>
-            <option>Draw</option>
-          </select>
-    
-          <label class="small-muted" for="add-fight-winner">WINNER</label>
-          <select id="add-fight-winner" class="input" style="width:100%;">
-            <option value="0">Draw</option>
-          </select>
-    
-          <label class="small-muted" for="add-fight-region">NA / EU</label>
-          <select id="add-fight-region" class="input" style="width:100%;">
+          <select id="add-fighter-region">
             <option value="NA">NA</option>
             <option value="EU">EU</option>
           </select>
-    
-          <label class="small-muted" for="add-fight-caf">CAF: YES OR NO</label>
-          <select id="add-fight-caf" class="input" style="width:100%;">
-            <option value="false">No</option>
-            <option value="true">Yes</option>
+          <button class="btn btn-primary" onclick="adminAddFighter()">Add</button>
+        </div>
+      </div>
+
+
+        <!-- 🥊 ADD FIGHT SECTION -->
+        <div id="add-fight-section" class="admin-section">
+          <h3 class="text-xl font-bold mb-3">Add Fight</h3>
+        
+          <!-- FIGHTER 1 -->
+          <div class="form-group mb-2">
+            <label for="add-fight-f1" class="block text-sm font-semibold mb-1">FIGHTER 1</label>
+            <select id="add-fight-f1" class="form-control w-full p-1 border rounded"></select>
+          </div>
+        
+          <!-- FIGHTER 2 -->
+          <div class="form-group mb-2">
+            <label for="add-fight-f2" class="block text-sm font-semibold mb-1">FIGHTER 2</label>
+            <select id="add-fight-f2" class="form-control w-full p-1 border rounded"></select>
+          </div>
+        
+         <!-- METHOD -->
+        <div class="form-group mb-2">
+          <label for="add-fight-method" class="block text-sm font-semibold mb-1">METHOD</label>
+          <select id="add-fight-method" class="form-control w-full p-1 border rounded">
+            <option value="ko">KO / TKO</option>
+            <option value="decision">Decision</option>
+            <option value="draw">Draw</option>
           </select>
+        </div>
+        
+        
+        <!-- WINNER -->
+        <div class="form-group mb-2">
+          <label for="add-fight-winner" class="block text-sm font-semibold mb-1">WINNER</label>
+          <select id="add-fight-winner" class="form-control w-full p-1 border rounded">
+            <option value="">Select Winner</option>
+            <option value="draw">Draw</option>
+          </select>
+        </div>
+        
+          <!-- DATE -->
+          <div class="form-group mb-2">
+            <label for="add-fight-date" class="block text-sm font-semibold mb-1">DATE</label>
+            <input id="add-fight-date" type="date" class="form-control w-full p-1 border rounded" />
+          </div>
+        
+          <!-- CAF -->
+          <div class="form-group mb-2">
+            <label for="add-fight-caf" class="block text-sm font-semibold mb-1">CAF</label>
+            <input id="add-fight-caf" type="checkbox" class="form-checkbox h-4 w-4 text-blue-500" />
+          </div>
+        
+          <!-- TITLE FIGHT -->
+          <div class="form-group mb-2">
+            <label for="add-fight-titlefight" class="block text-sm font-semibold mb-1">TITLE FIGHT</label>
+            <select id="add-fight-titlefight" class="form-control w-full p-1 border rounded">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        
+          <!-- BONUS -->
+          <div class="form-group mb-4">
+            <label for="add-fight-bonus" class="block text-sm font-semibold mb-1">BONUS</label>
+            <select id="add-fight-bonus" class="form-control w-full p-1 border rounded">
+              <option value="none">NONE</option>
+              <option value="POTN">POTN (Performance of the Night)</option>
+              <option value="FOTN">FOTN (Fight of the Night)</option>
+            </select>
+          </div>
+        
+          <!-- SUBMIT BUTTON -->
+          <button onclick="adminAddFight()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded">
+            Add Fight
+          </button>
+        </div>
 
-          <!-- BONUS AWARD -->
-<label class="small-muted" for="add-fight-bonus">BONUS AWARD</label>
-<select id="add-fight-bonus" class="input" style="width:100%;">
-  <option value="none">None</option>
-  <option value="POTN">POTN</option>
-  <option value="FOTN">FOTN</option>
-</select>
 
-<!-- TITLE FIGHT -->
-<label class="small-muted" for="add-fight-title">TITLE FIGHT</label>
-<select id="add-fight-title" class="input" style="width:100%;">
-  <option value="none">None</option>
-  <option value="UFL WORLD">UFL World Title</option>
-  <option value="RBC">RBC Title</option>
-  <option value="ABC">ABC Title</option>
-  <option value="UFL CAF">UFL CAF Title</option>
-</select>
-    
-          <label class="small-muted" for="add-fight-date">DATE</label>
-          <input id="add-fight-date" type="date" class="input" style="width:100%;" />
-    
-          <button class="btn btn-primary" style="margin-top:12px;" onclick="adminAddFight()">Add Fight</button>
-        </div>
-      </div>
-    
-      <!-- MANAGE FIGHTER -->
-      <div class="frosted" style="grid-column:span 2;">
-        <h3 style="margin:0 0 8px 0;">Manage Fighters</h3>
-        <div class="small-muted">Edit names, platform, retire/unretire. Points column shows current ranking points.</div>
-        <div style="margin-top:8px;">
-          <table>
-            <thead><tr><th>Name</th><th>Platform</th><th>Record</th><th>Points</th><th>Actions</th></tr></thead>
-            <tbody id="admin-fighters-list"></tbody>
-          </table>
-        </div>
-      </div>
-    
-      <!-- MANAGE FIGHT -->
-      <div class="frosted" style="grid-column:span 2;">
-        <h3 style="margin:0 0 8px 0;">Manage Fights</h3>
-        <div class="small-muted">Select an existing fight to edit or delete (admin only).</div>
-        <div style="margin-top:8px;">
-          <select id="admin-fights-dropdown" style="width:100%;padding:8px;border-radius:6px;"></select>
-          <div style="margin-top:8px;display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="adminEditSelectedFight()">Edit Selected</button>
-            <button class="btn btn-danger" onclick="adminDeleteSelectedFight()">Delete Selected</button>
-          </div>
-          <div id="admin-fights-list" style="margin-top:10px;max-height:240px;overflow:auto;"></div>
-        </div>
-      </div>
-    
-      <!-- CHAMPION TITLES -->
-      <div class="frosted" style="grid-column:span 2;border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(6px);margin-top:12px;">
-        <h3 style="margin:0 0 8px 0;">Champion Titles Management</h3>
-        <div class="small-muted">Assign UFL, RBC, ABC, and CAF titles. Vacate clears title and resets counters.</div>
-        <div id="champion-titles-container" style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
-        <div style="margin-top:10px;display:flex;gap:8px;">
-          <button class="btn btn-yellow" onclick="saveChampionAssignments()">Save Titles</button>
-          <button class="btn" onclick="resetChampionAssignments()">Clear Titles</button>
-          <button class="btn" onclick="refreshRankings()">🔄 Refresh Rankings</button>
-        </div>
-    
-        <!-- RANKING BREAKDOWN -->
-        <div class="breakdown" id="ranking-breakdown" style="margin-top:14px;">
-          <div style="font-weight:700;color:var(--gold);margin-bottom:6px;">RANKING POINTS BREAKDOWN</div>
-          <div>- <strong>Base Points:</strong> +3 for a Win, −1.5 for a Loss, +1 for a Draw</div>
-          <div>- <strong>Contender Multiplier:</strong> ×1.25 for fights where both are ranked Top 10</div>
-          <div>- <strong>Opponent Strength Bonus:</strong> Weighted by opponent’s win percentage</div>
-          <div>- <strong>Recency Bonus:</strong> ×1.2 for fights within the last 10 days</div>
-          <div>- <strong>Activity Decay:</strong> Fighters inactive for 20+ days lose 1% per day (up to −20%).</div>
-        </div>
-    
-        <!-- BADGE BREAKDOWN -->
-        <div style="margin-top:20px;">
-          <div style="font-weight:700;color:var(--gold);margin-bottom:6px;">BADGE SYSTEM BREAKDOWN</div>
-          <div>- 🏛️ <strong>ICON:</strong> 10+ total fights and a win rate of 80% or higher.<br>
+
+        <div class="frosted">
+          <h3 style="margin:0 0 8px 0;">Manage Fighters</h3>
+          <div class="small-muted">Edit names, platform, retire/unretire. Points column shows calculated ranking points (combined names).</div>
+          <div style="margin-top:8px;">
             
-          </div>
-          <div>- 🔥 <strong>WINNING STREAK:</strong> Currently on a win streak (1+ consecutive wins).<br>
+            <table>
+              <thead><tr><th>Name</th><th>Platform</th><th>Actions</th></tr></thead>
+              <tbody id="admin-fighters-list"></tbody>
+            </table>
             
+
           </div>
-          <div>- 🥊 <strong>KO ARTIST:</strong> 8+ total fights and at least 4 KO/TKO victories.<br>
+    
+
+        <div class="frosted">
+          <h3 style="margin:0 0 8px 0;">Manage Fights</h3>
+          <div class="small-muted">Select fight by input order to edit or delete (admin only).</div>
+          <div style="margin-top:8px;">
+            <select id="admin-fights-dropdown" style="width:100%; padding:8px; border-radius:6px;"></select>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button class="btn btn-primary" onclick="adminEditSelectedFight()">Edit Selected</button>
+              <button class="btn btn-danger" onclick="adminDeleteSelectedFight()">Delete Selected</button>
+            </div>
+            <div id="admin-fights-list" style="margin-top:10px; max-height:240px; overflow:auto;"></div>
+          </div>
+          <hr style="margin:8px 0;">
+          <h4 style="margin:6px 0;">Add Fight</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;">
            
-          </div>
-          <div>- ⚙️ <strong>WORKHORSE:</strong> 3+ fights within any 10-day span.<br>
-            
-          </div>
-          <div>- 🌟 <strong>RISING STAR:</strong> Fewer than 8 total fights and a win rate of 80% or higher.<br>
-            
-          </div>
-    </div>
-    
-  </div>
+  
+
 </div>
 
+<script>
+  function updateWinnerDropdown() {
+    const f1Select = document.getElementById('add-fight-f1');
+    const f2Select = document.getElementById('add-fight-f2');
+    const winnerSelect = document.getElementById('add-fight-winner');
+  
+    if (!f1Select || !f2Select || !winnerSelect) return;
+  
+    const f1Name = f1Select.options[f1Select.selectedIndex]?.text || '';
+    const f2Name = f2Select.options[f2Select.selectedIndex]?.text || '';
+  
+    // Clear current options
+    winnerSelect.innerHTML = '';
+  
+    // Add updated fighter options
+    if (f1Name) {
+      const opt1 = document.createElement('option');
+      opt1.value = f1Select.value;
+      opt1.textContent = f1Name + ' (Fighter 1)';
+      winnerSelect.appendChild(opt1);
+    }
+  
+    if (f2Name) {
+      const opt2 = document.createElement('option');
+      opt2.value = f2Select.value;
+      opt2.textContent = f2Name + ' (Fighter 2)';
+      winnerSelect.appendChild(opt2);
+    }
+  
+    // Add draw option
+    const drawOpt = document.createElement('option');
+    drawOpt.value = '0';
+    drawOpt.textContent = 'Draw';
+    winnerSelect.appendChild(drawOpt);
+  }
+  
+  // Listen for changes on Fighter 1 and Fighter 2 dropdowns
+  document.getElementById('add-fight-f1')?.addEventListener('change', updateWinnerDropdown);
+  document.getElementById('add-fight-f2')?.addEventListener('change', updateWinnerDropdown);
+  </script>
+  
 
-        
+ 
+
+        <div class="frosted" style="grid-column:span 2;">
+          <h3 style="margin:0 0 8px 0;">Champion Titles Management</h3>
+          <div class="small-muted">Assign UFL & RBC titles. UFL World & CAF show Title Defenses (editable) and Last Defense (read-only). Vacate clears title and resets counters for UFL titles.</div>
+          <div id="champion-titles-container" style="margin-top:10px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button class="btn btn-yellow" onclick="saveChampionAssignments()">Save Titles</button>
+            <button class="btn" onclick="resetChampionAssignments()">Clear Titles</button>
+            <button class="btn" onclick="refreshRankings()">🔄 Refresh Rankings</button>
+          </div>
+
+          <div class="breakdown" id="ranking-breakdown" style="margin-top:14px;">
+            <div style="font-weight:700;color:var(--gold);margin-bottom:6px;">RANKING POINTS BREAKDOWN</div>
+            <div>- Base: <strong>Wins +3</strong>, <strong>Losses −1 (escalates)</strong>, <strong>Draws +1</strong></div>
+            <div>- Title Capture: <strong>+2</strong></div>
+            <div>- Title Defense: <strong>+3</strong></div>
+            <div>- Championship Fight Multiplier: <strong>×1.5</strong></div>
+            <div>- Defense Fight Multiplier: <strong>×1.5</strong></div>
+            <div>- Contender Multiplier (Top 10 vs Top 10): <strong>×1.25</strong></div>
+            <div>- Opponent Strength Bonus: Weighted by opponent win %</div>
+            <div>- Recency Bonus: <strong>×1.2</strong> for fights within the last 10 days</div>
+            <div style="margin-top:8px;font-size:12px;color:var(--muted)">Decay: Fighters who haven't fought in 10+ days lose 1% per day (capped at 20%).</div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -557,75 +873,28 @@ html, body {
     <h3 style="margin:0;font-family:Orbitron;">Edit Fight</h3>
     <button class="btn" onclick="closeEditFightModal()">✖</button>
   </div>
-  
-  <div style="
-  border:2px solid rgba(255,255,255,0.15);
-  border-radius:12px;
-  padding:16px;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(6px);
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:12px;
-">
-
-  <!-- PLATFORM -->
-  <label class="small-muted" for="edit-fight-platform">PLATFORM</label>
-  <select id="edit-fight-platform" class="input" style="width:100%;">
-    <option>PC</option>
-    <option>PS5</option>
-    <option>XBOX</option>
-  </select>
-
-  <!-- FIGHTER 1 -->
-  <label class="small-muted" for="edit-fight-f1">FIGHTER 1</label>
-  <select id="edit-fight-f1" class="input" style="width:100%;"></select>
-
-  <!-- FIGHTER 2 -->
-  <label class="small-muted" for="edit-fight-f2">FIGHTER 2</label>
-  <select id="edit-fight-f2" class="input" style="width:100%;"></select>
-
-  <!-- METHOD -->
-  <label class="small-muted" for="edit-fight-method">METHOD</label>
-  <select id="edit-fight-method" class="input" style="width:100%;">
-    <option>KO/TKO</option>
-    <option>Decision</option>
-    <option>Draw</option>
-  </select>
-
-  <!-- WINNER -->
-  <label class="small-muted" for="edit-fight-winner">WINNER</label>
-  <select id="edit-fight-winner" class="input" style="width:100%;">
-    <option value="0">Draw</option>
-  </select>
-
-  <!-- REGION -->
-  <label class="small-muted" for="edit-fight-region">NA / EU</label>
-  <select id="edit-fight-region" class="input" style="width:100%;">
-    <option value="NA">NA</option>
-    <option value="EU">EU</option>
-  </select>
-
-  <!-- CAF -->
-  <label class="small-muted" for="edit-fight-caf">CAF: YES OR NO</label>
-  <select id="edit-fight-caf" class="input" style="width:100%;">
-    <option value="false">No</option>
-    <option value="true">Yes</option>
-  </select>
+  <div style="margin-top:8px;">
+    <label class="small-muted">Fighter 1</label><br>
+    <select id="edit-fight-f1" class="input" style="width:100%;"></select>
+    <label class="small-muted" style="margin-top:6px;">Fighter 2</label><br>
+    <select id="edit-fight-f2" class="input" style="width:100%;"></select>
+    <label class="small-muted" style="margin-top:6px;">Platform</label><br>
+    
 
 
+    <label class="small-muted" style="margin-top:6px;">Method</label><br>
+    <select id="edit-fight-method" class="input" style="width:100%;"><option>KO/TKO</option><option>Decision</option><option>Draw</option></select>
+    <label class="small-muted" style="margin-top:6px;">Winner</label><br>
+    <select id="edit-fight-winner" class="input" style="width:100%;"><option value="0">Draw</option></select>
+    <label class="small-muted" style="margin-top:6px;">Date</label><br>
+    <input id="edit-fight-date" type="date" class="input" />
+    <label class="small-muted" style="margin-top:6px;">CAF fight?</label><br>
+    <select id="edit-fight-caf" class="input" style="width:100%;"><option value="false">No</option><option value="true">Yes</option></select>
 
-  <!-- DATE -->
-  <label class="small-muted" for="edit-fight-date">DATE</label>
-  <input id="edit-fight-date" type="date" class="input" style="width:100%;" />
-
-  <!-- BUTTONS -->
-  <div style="display:flex;justify-content:space-between;margin-top:14px;">
-    <button class="btn btn-danger" onclick="confirmDeleteFight()">Delete</button>
-    <button class="btn btn-primary" onclick="saveEditedFight()">Save Changes</button>
-  </div>
-
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn btn-primary" onclick="saveEditedFight()">Save</button>
+      <button class="btn btn-danger" onclick="confirmDeleteFight()">Delete</button>
+    </div>
   </div>
 </div>
 </div>
@@ -633,23 +902,22 @@ html, body {
 <!-- START Part 3 of 6 -->
 <script>
   /* ===========================
-   🔥 FIREBASE INITIALIZATION
-   =========================== */
-
-const firebaseConfig = {
+     🔥 FIREBASE INITIALIZATION
+     =========================== */
+     const firebaseConfig = {
   apiKey: "AIzaSyBkcyte__qrs-sxQilqjK40Wl5NDJARxzU",
   authDomain: "ufl-season-3.firebaseapp.com",
   projectId: "ufl-season-3",
   storageBucket: "ufl-season-3.firebasestorage.app",
   messagingSenderId: "148274309173",
   appId: "1:148274309173:web:335fbe2161af38f9c6e97c"
-};
 
-// ✅ Initialize Firebase (compat syntax)
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  firebase.firestore().enablePersistence().catch(() => {});
   
+
   /* ===========================
      🌐 GLOBAL STATE & HELPERS
      =========================== */
@@ -681,7 +949,7 @@ const db = firebase.firestore();
      =========================== */
   
   db.collection('fighters').onSnapshot(snap=>{
-    fighters = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    fighters = snap.docs.map(d=>({ id:d.id, ...d.data() }));
     // normalize expected fields
     fighters.forEach(f=>{
       f.wins = f.wins || 0;
@@ -699,124 +967,49 @@ const db = firebase.firestore();
     populateAdminFighters?.();
     renderAll?.();
   }, e=>console.error('fighters listener error', e));
-
-// 🧩 Track former champions globally
-let formerChampions = [];
-
-async function updateFormerChampions() {
-  formerChampions = [];
-
-  fights.forEach(f => {
-    if (f.title && f.title !== 'none') {
-      if (f.winner && f.winner !== '0') {
-        const loser = (f.winner === f.fighter1) ? f.fighter2 : f.fighter1;
-        if (!formerChampions.includes(loser)) {
-          formerChampions.push(loser);
-        }
-      }
-    }
-  });
-
-  // ✅ Persist list to Firestore
-  try {
-    await db.collection('settings').doc('formerChampions').set(
-      { list: formerChampions },
-      { merge: true }
-    );
-  } catch (e)
-    console.error('Failed to save formerChampions:', e);
-  }
-
-  // Optional debug log (silent in production)
-  if (window.location.hostname.includes('localhost')) {
-    console.log('Former champions list updated:', formerChampions);
-  }
-}
-
-
-  // 🧩 Save to Firestore so it's persistent
-  db.collection('settings').doc('formerChampions').set(
-    { list: formerChampions },
-    { merge: true }
-  ).catch(e => console.error('Failed to update former champions list', e));
-}
-
-
-// ===========================
-// 🥊 FIGHTS SNAPSHOT LISTENER
-// ===========================
-db.collection('fights').orderBy('date','desc').onSnapshot(snap=>{
-  fights = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-
-  // ensure consistent fields
-  fights.forEach(f=>{
-f.platform = f.platform || '';
-f.method = f.method || '';
-f.caf = !!f.caf;
-f.bonus = f.bonus || ''; // ✅ ensures every fight has a bonus field
-
-    // store human readable fighter names (for older entries)
-    f.fighter1Name = f.fighter1Name || (fighters.find(x=>x.id===f.fighter1)?.name || '');
-    f.fighter2Name = f.fighter2Name || (fighters.find(x=>x.id===f.fighter2)?.name || '');
-    f.winnerName = (f.winner === '0' || f.winner === 0)
-      ? 'Draw'
-      : (fighters.find(x=>x.id===f.winner)?.name || '');
-  });
-
-  // ✅ Add this line to actually build the list!
-  updateFormerChampions();
-
-  populateEditFightSelects?.();
-  recomputeTitleDefensesFromFights?.();
-  renderAll?.();
-
-}, e=>console.error('fights listener error', e));
-
-
-// =============================
-// 👑 CHAMPIONS SNAPSHOT LISTENER
-// =============================
-db.collection('settings').doc('champions').onSnapshot(doc=>{
-  champions = doc.exists ? doc.data() : {};
-
-  // normalize fields we expect
-  champions.uflWorld = champions.uflWorld || null;
-  champions.uflWorldDefenses = champions.uflWorldDefenses || 0;
-  champions.uflWorldLastDefense = champions.uflWorldLastDefense || '';
-  champions.uflCAF = champions.uflCAF || null;
-  champions.uflCAFDefenses = champions.uflCAFDefenses || 0;
-  champions.uflCAFLastDefense = champions.uflCAFLastDefense || '';
-  champions.uflPC = champions.uflPC || null;
-  champions.uflPS5 = champions.uflPS5 || null;
-  champions.uflXbox = champions.uflXbox || null;
-  champions.rbcPC = champions.rbcPC || null;
-  champions.rbcPS5 = champions.rbcPS5 || null;
-  champions.rbcXbox = champions.rbcXbox || null;
-  champions.youtubePlaylist = champions.youtubePlaylist || '';
-
-  populateChampionTitleSelects?.();
-  renderAll?.();
-}, e=>console.warn('champions listener', e));
-
-// 🏆 Listen for former champions list (persistent version)
-db.collection('settings').doc('formerChampions').onSnapshot(doc => {
-  formerChampions = (doc.exists && doc.data().list) ? doc.data().list : [];
-  if (window.location.hostname.includes('localhost')) {
-    console.log('Loaded formerChampions from Firestore:', formerChampions);
-  }
-}, e => console.warn('formerChampions listener error', e));
-
-
-
-
-// =============================
-// 🔐 ADMIN PASSWORD FETCH
-// =============================
-db.collection('settings').doc('admin').get().then(doc=>{
-  if(doc.exists) window.ADMIN_PW = doc.data().password || null;
-}).catch(()=>{ window.ADMIN_PW = null; });
-
-
+  
+  db.collection('fights').orderBy('date','desc').onSnapshot(snap=>{
+    fights = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    // ensure consistent fields
+    fights.forEach(f=>{
+      f.platform = f.platform || '';
+      f.method = f.method || '';
+      f.caf = !!f.caf;
+      // store human readable winnerName/fighter names if not present (some older entries might miss them)
+      f.fighter1Name = f.fighter1Name || (fighters.find(x=>x.id===f.fighter1)?.name || '');
+      f.fighter2Name = f.fighter2Name || (fighters.find(x=>x.id===f.fighter2)?.name || '');
+      f.winnerName = (f.winner === '0' || f.winner === 0) ? 'Draw' : (fighters.find(x=>x.id===f.winner)?.name || '');
+    });
+    populateEditFightSelects?.();
+    recomputeTitleDefensesFromFights?.();
+    renderAll?.();
+  }, e=>console.error('fights listener error', e));
+  
+  db.collection('settings').doc('champions').onSnapshot(doc=>{
+    champions = doc.exists ? doc.data() : {};
+    // normalize fields we expect
+    champions.uflWorld = champions.uflWorld || null;
+    champions.uflWorldDefenses = champions.uflWorldDefenses || 0;
+    champions.uflWorldLastDefense = champions.uflWorldLastDefense || '';
+    champions.uflCAF = champions.uflCAF || null;
+    champions.uflCAFDefenses = champions.uflCAFDefenses || 0;
+    champions.uflCAFLastDefense = champions.uflCAFLastDefense || '';
+    champions.uflPC = champions.uflPC || null;
+    champions.uflPS5 = champions.uflPS5 || null;
+    champions.uflXbox = champions.uflXbox || null;
+    champions.rbcPC = champions.rbcPC || null;
+    champions.rbcPS5 = champions.rbcPS5 || null;
+    champions.rbcXbox = champions.rbcXbox || null;
+    champions.youtubePlaylist = champions.youtubePlaylist || '';
+    populateChampionTitleSelects?.();
+    renderAll?.();
+  }, e=>console.warn('champions listener', e));
+  
+  /* optional admin password stored in settings/admin */
+  db.collection('settings').doc('admin').get().then(doc=>{
+    if(doc.exists) window.ADMIN_PW = doc.data().password || null;
+  }).catch(()=>{ window.ADMIN_PW = null; });
+  
   /* ===========================
      🧩 COMBINE FIGHTER DATA (same names across platforms)
      =========================== */
@@ -976,95 +1169,17 @@ function safeDate(d) {
 
   
 
-  // 🌟 RISING STAR — <8 fights and 80%+ win rate
-  if (totalFights < 8 && winPct >= 0.8 && totalFights > 0) {
-    badges.push({ key: 'Rising Star', icon: '🌟', desc: 'Rising Star' });
-  }
-
-     // 🏅 PERFORMANCE OF THE NIGHT (POTN)
-  const potnCount = fights.filter(f =>
-    (ids.includes(f.fighter1) || ids.includes(f.fighter2)) && f.bonus === 'POTN'
-  ).length;
-  if (potnCount > 0) {
-    badges.push({
-      key: 'POTN',
-      icon: '💰',
-      desc: `Performance of the Night ×${potnCount}`
-    });
-  }
-
-  // 🥇 FIGHT OF THE NIGHT (FOTN)
-  const fotnCount = fights.filter(f =>
-    (ids.includes(f.fighter1) || ids.includes(f.fighter2)) && f.bonus === 'FOTN'
-  ).length;
-  if (fotnCount > 0) {
-    badges.push({
-      key: 'FOTN',
-      icon: '💰',
-      desc: `Fight of the Night ×${fotnCount}`
-    });
-  }
-
-  // 👑 CHAMPION / FORMER CHAMPION BADGES
-    const fighterIdMatch = id => ids.includes(id);
-
-  // Gather all title fights this fighter has participated in
-  const titleFights = fights.filter(f =>
-    f.title && f.title !== 'none' &&
-    (fighterIdMatch(f.fighter1) || fighterIdMatch(f.fighter2))
-  );
-
-  const currentChampionTitles = [];
-  const formerChampionTitles = [];
-
-  // Determine which titles they’ve won or lost
-  for (const f of titleFights) {
-    if (f.winner && f.winner !== '0') {
-      const isWinner = fighterIdMatch(f.winner);
-      if (isWinner) {
-        currentChampionTitles.push(f.title);
-      } else {
-        formerChampionTitles.push(f.title);
-      }
-    }
-  }
-
-  // Remove duplicates
-  const uniqueCurrentTitles = [...new Set(currentChampionTitles)];
-  const uniqueFormerTitles = [...new Set(formerChampionTitles)];
-
-  // Build defense history (optional hover details)
-  const defenseInfo = [];
-
-  fights
-    .filter(f => f.title && f.title !== 'none' && f.winner && fighterIdMatch(f.winner))
-    .forEach(f => {
-      const opponentId = f.fighter1 === f.winner ? f.fighter2 : f.fighter1;
-      const opponentName = fighters.find(x => x.id === opponentId)?.name || 'Unknown';
-      const date = f.date ? formatDateShort(f.date) : 'N/A';
-      defenseInfo.push(`${opponentName} (${date})`);
-    });
-
-  // Assign Champion / Former Champion badges
-  if (uniqueCurrentTitles.length > 0) {
-    const titleList = uniqueCurrentTitles.join(', ');
-    const defenseText = defenseInfo.length ? ` | Defenses: ${defenseInfo.join(', ')}` : '';
-    badges.push({
-      key: 'Champion',
-      icon: '👑',
-      desc: `Current ${titleList} Champion${defenseText}`
-    });
-  } else if (uniqueFormerTitles.length > 0) {
-    const titleList = uniqueFormerTitles.join(', ');
-    badges.push({
-      key: 'FormerChampion',
-      icon: '🥈',
-      desc: `Former ${titleList} Champion`
-    });
-  }
+  // 🌟 RISING STAR — between 4–7 fights and 80%+ win rate
+if (totalFights >= 4 && totalFights < 8 && winPct >= 0.8) {
+  badges.push({
+    key: 'Rising Star',
+    icon: '🌟',
+    desc: 'Rising Star — Early Career Success'
+  });
+}
 
   // Order badges logically by importance
-  const order = ['Icon', 'Champion', 'Winning Streak', 'KO Artist', 'Workhorse', 'Rising Star', 'POTN', 'FOTN'];
+  const order = ['Icon', 'Winning Streak', 'KO Artist', 'Workhorse', 'Rising Star'];
   badges.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
 
   return badges;
@@ -1153,7 +1268,7 @@ function calculateRankPoints(fighterIds, returnBreakdown = false) {
   // --- Breakdown trackers (for Player Card)
   let breakdown = {
     base: 0,
-    finish: 0,
+    finish: 0, // 🥊 NEW: tracks KO/TKO bonuses
     opponent: 0,
     recency: 0,
     streak: 0,
@@ -1194,11 +1309,12 @@ function calculateRankPoints(fighterIds, returnBreakdown = false) {
     if (isDraw) base += 1;
     breakdown.base += base;
 
-// 🥊 KO/TKO Finish Bonus
+    // 🥊 KO/TKO Finish Bonus
 if (isWin && f.method && /ko|tko/i.test(f.method)) {
   base += 1; // small bonus
   breakdown.finish += 1; // track in modifiers or create a separate "finishBonus" if you prefer
 }
+
 
     // 🧩 Rank differential adjustment
     if (isWin && selfRank > oppRank) {
@@ -1309,58 +1425,47 @@ function getCurrentRank(fid) {
 }
 
 function computeRankings() {
-  // Existing code that builds fighter list and calculates points
-  const allRanked = fighters
-    .filter(f => !f.retired)
-    .map(f => {
-      f.points = calculateRankPoints(f.id);
-      return f;
-    })
-    .sort((a, b) => b.points - a.points);
+  const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
 
-  // 🌎 WORLD = All fights
-  const world = [...allRanked].slice(0, 30);
+  // 🚫 Exclude retired fighters and champions
+  const activeOnly = combined.filter(f => {
+    const main = fighters.find(x => x.id === f.idMain);
 
-  // 🧬 CAF = fighters who have CAF fights
-  const caf = allRanked
-    .filter(f => f.isCAFAny)
-    .slice(0, 30);
+    const isChampion =
+      (champions?.uflWorld && f.ids.includes(champions.uflWorld)) ||
+      (champions?.uflCAF && f.ids.includes(champions.uflCAF));
 
-  // 🇺🇸 ABC = North America
-  const abc = allRanked.filter(f =>
-    fights.some(x =>
-      x.region === 'NA' && (x.fighter1 === f.id || x.fighter2 === f.id)
-    )
-  ).slice(0, 15);
+    return !main?.retired && !isChampion;
+  });
 
-  // 🇪🇺 RBC = Europe
-  const rbc = allRanked.filter(f =>
-    fights.some(x =>
-      x.region === 'EU' && (x.fighter1 === f.id || x.fighter2 === f.id)
-    )
-  ).slice(0, 15);
+  // 🧮 Calculate points
+  activeOnly.forEach(f => {
+    f.points = calculateRankPoints(f.ids);
+  });
 
-  return { world, caf, abc, rbc };
-}
+  // 📊 Sort by points descending
+  activeOnly.sort((a, b) => b.points - a.points);
 
+  // 🏆 Separate UFL World and CAF rankings
+  const world = activeOnly.filter(f => !f.isCAFAny).slice(0, 30);
+  const caf = activeOnly.filter(f => f.isCAFAny).slice(0, 30);
+
+  return { world, caf };
 
 
 }
 
 function renderAll() {
-  const { world, caf, abc, rbc } = computeRankings();
+  const { world, caf } = computeRankings();
+// 🧠 Cache the latest computed rankings for faster reloads
+localStorage.setItem('cachedRankings', JSON.stringify({ world, caf }));
 
-renderRankings(world, 'world-rankings');
-renderRankings(caf, 'caf-rankings');
-renderRankings(abc, 'abc-rankings');
-renderRankings(rbc, 'rbc-rankings');
-
-// 🏆 Champion cards
-renderChampion('world-champion-card', champions?.uflWorld);
-renderChampion('caf-champion-card', champions?.uflCAF);
-renderChampion('abc-champion-card', champions?.abc);
-renderChampion('rbc-champion-card', champions?.rbc);
-
+  renderChampionCard('world', $('world-champion-card'));
+  renderChampionCard('caf', $('caf-champion-card'));
+  renderRankings(world, 'world-rankings');
+  renderRankings(caf, 'caf-rankings');
+  renderPlayers();
+  renderFights();
 }
 
 function refreshRankings() {
@@ -1421,27 +1526,27 @@ function refreshRankings() {
 }
 
   
-  /* Rank list with numbers & small platform-champ icons */
-  function renderRankings(list, containerId) {
-    const container = $(containerId);
-    if (!container) return;
-    container.innerHTML = '';
-    list.forEach((f, i) => {
-      const rankNum = i + 1;
-      const champIcons = getChampionIcons(f);
-      container.insertAdjacentHTML('beforeend', `
-        <div class="fighter-row" onclick="openFighterModal('${f.idMain}')">
-          
-          <span class="rank-num">#${rankNum}</span>
-          <span class="fighter-name">${escapeHtml(f.name)} ${champIcons}</span>
-          <span class="fighter-record">${f.wins}-${f.losses}-${f.draws}</span>
-          
+/* Rank list with numbers & small platform-champ icons */
+function renderRankings(list, containerId) {
+  const container = $(containerId);
+  if (!container) return;
+  container.innerHTML = '';
 
-          
-        </div>`);
-        
-    });
-  }
+  list.forEach((f, i) => {
+    const rankNum = i + 1;
+    const champIcons = getChampionIcons(f);
+    const points = f.points ?? 0; // ✅ safe fallback for undefined values
+
+    container.insertAdjacentHTML('beforeend', `
+      <div class="fighter-row" onclick="openFighterModal('${f.idMain}')">
+        <div class="rank-num">#${rankNum}</div>
+        <div class="fighter-name">${escapeHtml(f.name)} ${champIcons}</div>
+        <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
+      </div>
+    `);
+  });
+}
+
   
   /* Small trophy icons for platform champs */
   function getChampionIcons(f) {
@@ -1475,17 +1580,16 @@ function refreshRankings() {
   <div class="fights-row">
     <div>${formatDateShort(f.date)}</div>
     <div>${escapeHtml(fightStr)}</div>
-    <div>${escapeHtml(f.method || '')}</div>
+    <div>${escapeHtml(f.method||'')}</div>
     <div>${escapeHtml(winner)}</div>
-  </div>
-`);
+  </div>`);
+
     });
   }
   
- /* Players tab render — with filters (KO, streak, activity, bonuses, champions) */
+  /* Players tab render — fixed for proper point totals */
 function renderPlayers() {
   const query = ($('players-search')?.value || '').toLowerCase();
-  const filter = $('players-filter')?.value || 'none';
   const combinedList = buildCombinedMap();
 
   // Recalculate total points for each combined fighter
@@ -1493,44 +1597,40 @@ function renderPlayers() {
     f.points = calculateRankPoints(f.ids);
   });
 
-  let list = combinedList.slice();
+  // Sort by total points descending
+  
+// 🧮 Sort by points, then head-to-head, then recent activity
+const list = combinedList.sort((a, b) => {
+  if (b.points !== a.points) return b.points - a.points;
 
-  // Apply FILTER logic
-  switch (filter) {
-    case 'mostKO':
-      list.sort((a, b) => (b.koWins || 0) - (a.koWins || 0));
-      break;
+  // 🥊 Head-to-head tiebreaker
+  const h2h = fights.filter(
+    f =>
+      (a.ids.includes(f.fighter1) && b.ids.includes(f.fighter2)) ||
+      (a.ids.includes(f.fighter2) && b.ids.includes(f.fighter1))
+  );
 
-    case 'streak':
-      list.sort((a, b) => countConsecutiveWins(b.ids) - countConsecutiveWins(a.ids));
-      break;
-
-    case 'active':
-      // "Most Active" = most fights in the last 30 days
-      list.sort((a, b) => recentFightCount(b.ids) - recentFightCount(a.ids));
-      break;
-
-    case 'bonus':
-      // "Most Bonuses" = most POTN + FOTN
-      list.sort((a, b) => totalBonuses(b.ids) - totalBonuses(a.ids));
-      break;
-
-    case 'champion':
-      list = list.filter(f => isCurrentChampion(f.idMain));
-      break;
-
-    case 'formerChampion':
-      list = list.filter(f => isFormerChampion(f.idMain));
-      break;
+  if (h2h.length) {
+    const aWins = h2h.filter(f => a.ids.includes(f.winner)).length;
+    const bWins = h2h.filter(f => b.ids.includes(f.winner)).length;
+    if (aWins !== bWins) return bWins - aWins;
   }
 
-  // Filter by name query
-  if (query) {
-    list = list.filter(f => f.name.toLowerCase().includes(query));
-  }
+  // 🕓 Recent activity tiebreaker
+  const getLastFightDate = fighter =>
+    Math.max(
+      0,
+      ...fights
+        .filter(ft => fighter.ids.includes(ft.fighter1) || fighter.ids.includes(ft.fighter2))
+        .map(ft => new Date(ft.date).getTime())
+    );
 
-  // Sort by points descending by default
-  if (filter === 'none') list.sort((a, b) => b.points - a.points);
+  const aLast = getLastFightDate(a);
+  const bLast = getLastFightDate(b);
+  if (aLast && bLast && aLast !== bLast) return bLast - aLast;
+
+  return 0;
+});
 
   const container = $('players-list');
   if (!container) return;
@@ -1545,6 +1645,8 @@ function renderPlayers() {
 
   // Loop through players and render rows
   list.forEach(f => {
+    if (query && !f.name.toLowerCase().includes(query)) return;
+
     const streak = computeStreakForCombined(f.ids);
     const streakClass = streak === 'hot' ? 'hot' : streak === 'cold' ? 'cold' : 'neutral';
     const streakSymbol = streak === 'hot' ? '▲' : streak === 'cold' ? '▼' : '–';
@@ -1557,58 +1659,13 @@ function renderPlayers() {
             <span class="streak ${streakClass}">${streakSymbol}</span>
             ${escapeHtml(f.name)}
           </span>
+          
         </div>
       `
     );
   });
 }
 
-/* ===== Helper functions for filters ===== */
-
-// Count fights in last 30 days
-function recentFightCount(ids) {
-  const now = new Date();
-  return fights.filter(f =>
-    (ids.includes(f.fighter1) || ids.includes(f.fighter2)) &&
-    (now - new Date(f.date)) / (1000 * 60 * 60 * 24) <= 30
-  ).length;
-}
-
-// Count total bonuses (POTN + FOTN)
-function totalBonuses(ids) {
-  return fights.filter(f =>
-    (ids.includes(f.fighter1) || ids.includes(f.fighter2)) &&
-    (f.bonus === 'POTN' || f.bonus === 'FOTN')
-  ).length;
-}
-
-
-// ===== Alternative helper functions for single-fighter lookups =====
-function totalRecentFights(fid) {
-  // Count fights in the last 30 days
-  const now = new Date();
-  return fights.filter(f => {
-    const d = new Date(f.date);
-    const days = (now - d) / (1000 * 60 * 60 * 24);
-    return days <= 30 && (f.fighter1 === fid || f.fighter2 === fid);
-  }).length;
-}
-
-function getBonusCount(fid) {
-  return fights.filter(f => 
-    (f.bonus === 'POTN' || f.bonus === 'FOTN') &&
-    (f.fighter1 === fid || f.fighter2 === fid)
-  ).length;
-}
-
-function isCurrentChampion(fid) {
-  if (!champions) return false;
-  return Object.values(champions).includes(fid);
-}
-
-function isFormerChampion(fid) {
-  return (formerChampions || []).includes(fid);
-}
   
   /* Fighter modal (clickable name) with opponents list and badges — SAFE VERSION */
 function openFighterModal(id) {
@@ -1684,7 +1741,8 @@ content.style.scrollBehavior = 'smooth';
 </div>
 
       <div class="fighter-badges">
-        ${badges.map(b => `<span class="badge" title="${b.desc}">${b.icon}</span>`).join('')}
+        ${badges.map(b => `<span class="badge" onclick="showBadgeDesc('${b.desc}')">${b.icon}</span>`).join('')}
+
       </div>
     </div>
     <div class="fighter-modal-body">
@@ -1712,6 +1770,7 @@ try {
       bdEl.innerHTML = `
         <div><strong>Base Points:</strong> ${breakdown.base.toFixed(1)}</div>
         <div><strong>Finish Bonus:</strong> ${breakdown.finish.toFixed(1)}</div>
+
         <div><strong>Opponent Quality:</strong> ${breakdown.opponent.toFixed(1)}</div>
         <div><strong>Recency Bonus:</strong> ${breakdown.recency.toFixed(1)}</div>
         <div><strong>Streak Bonus:</strong> ${breakdown.streak.toFixed(1)}</div>
@@ -1745,11 +1804,13 @@ setTimeout(() => {
   modal.classList.remove('hidden');
 }
 
+function showBadgeDesc(desc) { const existing = document.getElementById('badge-desc-popup'); if (existing) existing.remove(); const popup = document.createElement('div'); popup.id = 'badge-desc-popup'; popup.textContent = desc; popup.style.position = 'fixed'; popup.style.bottom = '20px'; popup.style.left = '50%'; popup.style.transform = 'translateX(-50%)'; popup.style.background = 'rgba(0,0,0,0.85)'; popup.style.color = '#ffd700'; popup.style.padding = '10px 16px'; popup.style.borderRadius = '10px'; popup.style.fontSize = '14px'; popup.style.border = '1px solid rgba(255,215,0,0.3)'; popup.style.zIndex = '9999'; popup.style.maxWidth = '80%'; popup.style.textAlign = 'center'; popup.style.boxShadow = '0 0 8px rgba(255,215,0,0.4)'; document.body.appendChild(popup); setTimeout(() => popup.remove(), 3000); }
+
   function closeFighterModal(){ $('fighter-modal').classList.add('hidden'); }
   
   /* Simple tab switcher (ensures one visible at all times) */
   function switchTab(tab) {
-    const tabs = ['world','rbc','abc','caf','players','fights','admin'];
+    const tabs = ['home','world','caf','players','fights','social','admin'];
     tabs.forEach(t=>{
       const el = document.getElementById(t+'-tab');
       const btn = document.getElementById('btn-'+t);
@@ -1757,19 +1818,30 @@ setTimeout(() => {
       if(btn) btn.classList.toggle('tab-active', t===tab);
     });
     renderAll();
- // 🔓 Auto-unlock admin dashboard when switching to Admin tab
- if (tab === 'admin') {
-    const loginSection = document.getElementById('admin-login');
-    const dashboard = document.getElementById('admin-dashboard');
-    if (loginSection && dashboard) {
-      loginSection.classList.add('hidden');
-      dashboard.classList.remove('hidden');
-    }
   }
+  document.addEventListener('DOMContentLoaded',()=>{ switchTab('home'); });
+
+/* ===============================
+   🧩 PLAYER CARD OVERLAY SYSTEM
+   =============================== */
+
+   function showPlayerCard(fighter) {
+  const playerCardHTML = `
+    <div class="player-card-overlay" id="player-overlay">
+      <div class="player-card">
+        ${buildPlayerCardHTML(fighter)}
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', playerCardHTML);
+}
+
+function closePlayerCard() {
+  const overlay = document.getElementById('player-overlay');
+  if (overlay) overlay.remove();
+}
 
 
-  }
-  document.addEventListener('DOMContentLoaded',()=>{ switchTab('world'); });
   </script>
   
   <style>
@@ -1794,6 +1866,17 @@ setTimeout(() => {
   ...
 }
 .rank-num{width:36px;text-align:center;color:#9ca3af;font-weight:700;}
+
+/* 🏆 Fix Champion Card alignment on mobile */
+#world-champion-card,
+#caf-champion-card {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 12px auto;  /* centers horizontally */
+  width: fit-content;
+  max-width: 95%;            /* prevents overflow on small screens */
+}
+
 
 /* ✅ ADD THIS NEW SECTION BELOW */
 .player-header-row {
@@ -1858,7 +1941,8 @@ setTimeout(() => {
     if(editWinner) { editWinner.innerHTML = '<option value="0">Draw</option>'; }
   
     fList.forEach(f=>{
-      const optHtml = `<option value="${f.id}">${escapeHtml(f.name)} (${escapeHtml(f.platform||'—')})</option>`;
+      const optHtml = `<option value="${f.id}">${escapeHtml(f.name)} (${escapeHtml(f.region||'—')})</option>`;
+
       if(addF1) addF1.insertAdjacentHTML('beforeend', optHtml);
       if(addF2) addF2.insertAdjacentHTML('beforeend', optHtml);
       if(editF1) editF1.insertAdjacentHTML('beforeend', optHtml);
@@ -1946,128 +2030,49 @@ setTimeout(() => {
         wrapper.appendChild(defLabel); wrapper.appendChild(defInput); wrapper.appendChild(lastDiv);
       }
   
-// Vacate button for convenience
-const vac = document.createElement('button');
-vac.className = 'btn';
-vac.style.marginTop = '8px';
-vac.textContent = 'Vacate';
-vac.onclick = async () => {
-  if (!confirm(`Vacate ${title}?`)) return;
-
-  const updates = {};
-  updates[field] = null;
-  if (field === 'uflWorld') {
-    updates.uflWorldDefenses = 0;
-    updates.uflWorldLastDefense = '';
-  }
-  if (field === 'uflCAF') {
-    updates.uflCAFDefenses = 0;
-    updates.uflCAFLastDefense = '';
-  }
-
-  try {
-    await db.collection('settings').doc('champions').set(updates, { merge: true });
-    alert('Vacated');
-
-    // ✅ Allow Firestore to update locally, then re-run logic
-    setTimeout(() => {
-      saveChampionAssignments(); // Ensures former champ tracking + UI refresh
-    }, 500);
-  } catch (e) {
-    console.error(e);
-    alert('Failed to vacate');
-  }
-};
-wrapper.appendChild(vac);
-
-
-container.appendChild(wrapper);
-
+      // Vacate button for convenience
+      const vac = document.createElement('button');
+      vac.className = 'btn';
+      vac.style.marginTop = '8px';
+      vac.textContent = 'Vacate';
+      vac.onclick = ()=>{
+        if(!confirm(`Vacate ${title}?`)) return;
+        const updates = {};
+        updates[field] = null;
+        if(field === 'uflWorld'){ updates.uflWorldDefenses = 0; updates.uflWorldLastDefense = ''; }
+        if(field === 'uflCAF'){ updates.uflCAFDefenses = 0; updates.uflCAFLastDefense = ''; }
+        db.collection('settings').doc('champions').set(updates,{ merge:true }).then(()=> { alert('Vacated'); }).catch(e=>{ console.error(e); alert('Failed to vacate'); });
+      };
+      wrapper.appendChild(vac);
+  
+      container.appendChild(wrapper);
+    });
   
     // If admin is logged in, inject YouTube admin controls near titles container
     injectAdminSocialControls();
   }
   
-/* Save champion assignments from admin form — now tracks and persists former champions */
-async function saveChampionAssignments() {
-  const payload = {};
-  const previousChampions = { ...champions }; // snapshot current champs before overwrite
-
-  TITLES.forEach(title => {
-    const field = mapTitleToField(title);
-    const sel = $(`champ-select-${field}`);
-    payload[field] = (sel && sel.value) ? sel.value : null;
-
-    // Handle defense counts
-    if (field === 'uflWorld') {
-      const def = parseInt($('champ-uflWorld-def')?.value || 0, 10) || 0;
-      payload.uflWorldDefenses = def;
-    }
-    if (field === 'uflCAF') {
-      const def = parseInt($('champ-uflCAF-def')?.value || 0, 10) || 0;
-      payload.uflCAFDefenses = def;
-    }
-  });
-
-  try {
-    // ✅ Save the new assignments
-    await db.collection('settings').doc('champions').set(payload, { merge: true });
-
-    // ✅ Refresh local champion data
-    const snap = await db.collection('settings').doc('champions').get();
-    if (snap.exists) champions = snap.data();
-
-    // 🧩 Compare old champs vs new champs
-    const formerIds = [];
-    Object.keys(payload).forEach(key => {
-      const oldChamp = previousChampions?.[key];
-      const newChamp = payload?.[key];
-      if (oldChamp && oldChamp !== newChamp) {
-        formerIds.push(oldChamp);
+  /* Save champion assignments from admin form */
+  async function saveChampionAssignments(){
+    const payload = {};
+    TITLES.forEach(title=>{
+      const field = mapTitleToField(title);
+      const sel = $(`champ-select-${field}`);
+      payload[field] = (sel && sel.value) ? sel.value : null;
+      if(field === 'uflWorld'){
+        const def = parseInt($('champ-uflWorld-def')?.value || 0,10) || 0;
+        payload.uflWorldDefenses = def;
+      }
+      if(field === 'uflCAF'){
+        const def = parseInt($('champ-uflCAF-def')?.value || 0,10) || 0;
+        payload.uflCAFDefenses = def;
       }
     });
-
-    // 🏷️ Mark any displaced champions as "formerChampion: true" and persist
-    if (formerIds.length > 0) {
-      const batch = db.batch();
-
-      // Mark on fighter documents
-      formerIds.forEach(fid => {
-        const ref = db.collection('fighters').doc(fid);
-        batch.set(ref, { formerChampion: true }, { merge: true });
-      });
-
-      // Persist global list of former champions
-      const formersRef = db.collection('settings').doc('formerChampions');
-      await formersRef.set({ list: formerIds }, { merge: true });
-
-      await batch.commit();
-      console.log('Former champions marked and persisted:', formerIds);
-    }
-
-    // ✅ REMOVE "formerChampion" flag if they are CURRENT champions again
-    const currentChampIds = Object.values(payload).filter(Boolean);
-    if (currentChampIds.length > 0) {
-      const batch2 = db.batch();
-      currentChampIds.forEach(fid => {
-        const ref = db.collection('fighters').doc(fid);
-        batch2.set(ref, { formerChampion: false }, { merge: true });
-      });
-      await batch2.commit();
-      console.log('Updated current champs to clear formerChampion flag:', currentChampIds);
-    }
-
-    // ✅ Re-render all displays with updated data
-    renderAll();
-
-    alert('Champion assignments saved and former champions updated.');
-  } catch (e) {
-    console.error('Failed to save champion assignments:', e);
-    alert('Failed to save champions');
+    try{
+      await db.collection('settings').doc('champions').set(payload, { merge:true });
+      alert('Saved champion assignments.');
+    }catch(e){ console.error(e); alert('Failed to save champions'); }
   }
-}
-
-
   
   /* Clear all champion assignments */
   async function resetChampionAssignments(){
@@ -2081,21 +2086,21 @@ async function saveChampionAssignments() {
     try{ await db.collection('settings').doc('champions').set(payload, { merge:true }); alert('Cleared'); }catch(e){console.error(e); alert('Failed');}
   }
   
-  /* Admin: Add Fighter */
-  function adminAddFighter(){
-    const name = ($('add-fighter-name')?.value || '').trim();
-    const platform = ($('add-fighter-platform')?.value || '').trim();
-    if(!name) return alert('Enter a name');
-    const payload = { name, platform, wins:0, losses:0, draws:0, koWins:0, retired:false, isCAF:false };
-    db.collection('fighters').add(payload).then(()=> {
-      $('add-fighter-name').value = '';
-      populateEditFightSelects();
-      populateAdminFighters();
-      alert('Fighter added.');
-    }).catch(e=>{ console.error(e); alert('Failed to add fighter'); });
-  }
+/* Admin: Add Fighter */
+function adminAddFighter(){
+  const name = ($('add-fighter-name')?.value || '').trim();
+  const region = ($('add-fighter-region')?.value || 'NA').trim();
+  if(!name) return alert('Enter a name');
+  const payload = { name, region, wins:0, losses:0, draws:0, koWins:0, retired:false, isCAF:false };
+  db.collection('fighters').add(payload).then(()=> {
+    $('add-fighter-name').value = '';
+    // reload UI lists
+    if (typeof populateEditFightSelects === 'function') populateEditFightSelects();
+    if (typeof populateAdminFighters === 'function') populateAdminFighters();
+    alert('Fighter added.');
+  }).catch(e=>{ console.error(e); alert('Failed to add fighter'); });
+}
 
-window.adminAddFighter = adminAddFighter;
   
   /* Recompute ALL fighter stats from fights (safe canonical source of truth) */
   async function recomputeAllFighterStats(){
@@ -2135,47 +2140,45 @@ window.adminAddFighter = adminAddFighter;
   }
   
   /* Admin: Add Fight */
-async function adminAddFight() {
-  const platform = $('add-fight-platform')?.value || '';
+  async function adminAddFight(){
   const f1 = $('add-fight-f1')?.value;
   const f2 = $('add-fight-f2')?.value;
   const method = $('add-fight-method')?.value || '';
   const winner = $('add-fight-winner')?.value || '0';
   const date = $('add-fight-date')?.value;
-  const caf = ($('add-fight-caf')?.value === 'true');
+  const caf = $('add-fight-caf')?.checked || false; // ✅ checkbox uses .checked
+  const titleFight = ($('add-fight-titlefight')?.value === 'yes'); // ✅ matches your <option value="yes">
   const bonus = $('add-fight-bonus')?.value || 'none';
-  const title = $('add-fight-title')?.value || 'none';
-  const region = $('add-fight-region')?.value || 'NA'; // 🆕 this line moved here
+  const region = $('add-fight-region')?.value || 'NA'; // ✅ optional, if region exists
 
   if (!f1 || !f2) return alert('Select both fighters');
   if (f1 === f2) return alert('Fighter cannot fight themselves');
   if (!date) return alert('Select a date');
 
-  // ✅ region is now properly part of the Firestore document
   const payload = {
     fighter1: f1,
     fighter2: f2,
     fighter1Name: fighters.find(x => x.id === f1)?.name || '',
     fighter2Name: fighters.find(x => x.id === f2)?.name || '',
-    platform,
     method,
     winner: winner || '0',
     date,
     caf,
-    region, 
-    title,
-    bonus, // 🆕 Added here
+    region,
+    titleFight, // ✅ saves true/false to Firestore
+    bonus       // ✅ saves POTN, FOTN, or none
   };
 
   try {
     await db.collection('fights').add(payload);
+    console.log('✅ Fight added to Firestore:', payload);
     await recomputeAllFighterStats();
     populateAdminFightsDropdown();
     populateAdminFightsList();
     renderAll();
-    alert('Fight added.');
+    alert('Fight added successfully.');
   } catch (e) {
-    console.error('Failed to add fight:', e);
+    console.error('🔥 Failed to add fight:', e);
     alert('Failed to add fight');
   }
 }
@@ -2183,38 +2186,20 @@ async function adminAddFight() {
 
   
   /* Admin: Edit selected fight - open modal and populate */
-  
-  function adminEditSelectedFight() {
-  const id = $('admin-fights-dropdown')?.value;
-  if (!id) return alert('Select a fight to edit.');
-  const fight = fights.find(f => f.id === id);
-  if (!fight) return alert('Fight not found.');
-
-  // Show modal
-  $('edit-fight-modal').classList.remove('hidden');
-
-  // Populate existing fields
-  $('edit-fight-f1').value = fight.fighter1 || '';
-  $('edit-fight-f2').value = fight.fighter2 || '';
-  $('edit-fight-platform').value = fight.platform || 'PC';
-  $('edit-fight-method').value = fight.method || 'KO/TKO';
-  $('edit-fight-winner').value = fight.winner || '0';
-  $('edit-fight-date').value = fight.date ? fight.date.split('T')[0] : '';
-  $('edit-fight-caf').value = fight.caf ? 'true' : 'false';
-
-  // 🆕 NEW: populate region field
-  $('edit-fight-region').value = fight.region || 'NA';
-}
-
-
+  function adminEditSelectedFight(){
+    const sel = $('admin-fights-dropdown');
+    if(!sel || !sel.value) return alert('Select a fight');
+    const fid = sel.value;
+    const fight = fights.find(f=>f.id===fid);
+    if(!fight) return alert('Fight not found');
     $('edit-fight-f1').value = fight.fighter1 || '';
     $('edit-fight-f2').value = fight.fighter2 || '';
-    $('edit-fight-platform').value = fight.platform || '';
+    $('edit-fight-region').value = fight.region || 'NA';
+
     $('edit-fight-method').value = fight.method || '';
     $('edit-fight-winner').value = fight.winner || '0';
     $('edit-fight-date').value = fight.date ? fight.date.split('T')[0] : fight.date;
     $('edit-fight-caf').value = fight.caf ? 'true' : 'false';
-    $('edit-fight-region').value = fight.region || 'NA'; // 🆕 populate region
     $('edit-fight-modal').dataset.editing = fid;
     $('edit-fight-modal').classList.remove('hidden');
   }
@@ -2233,12 +2218,12 @@ async function adminAddFight() {
     if(!fid) return alert('No fight selected');
     const f1 = $('edit-fight-f1').value;
     const f2 = $('edit-fight-f2').value;
-    const platform = $('edit-fight-platform').value;
+    const region = $('edit-fight-region')?.value || 'NA';
+
     const method = $('edit-fight-method').value;
     const winner = $('edit-fight-winner').value || '0';
     const date = $('edit-fight-date').value;
     const caf = ($('edit-fight-caf').value === 'true');
-    
   
     if(!f1 || !f2) return alert('Select both fighters');
     if(f1 === f2) return alert('Fighters must be different');
@@ -2250,12 +2235,11 @@ async function adminAddFight() {
   fighter2: f2,
   fighter1Name: fighters.find(x => x.id === f1)?.name || '',
   fighter2Name: fighters.find(x => x.id === f2)?.name || '',
-  platform,
   method,
   winner: winner || '0',
   date,
   caf,
-  region: $('edit-fight-region').value || 'NA' // single trailing property — no comma needed here
+  region
 }, { merge: true });
 
       await recomputeAllFighterStats();
@@ -2275,43 +2259,45 @@ async function adminAddFight() {
     adminDeleteFight(fid);
   }
   
-  /* Admin: Delete selected fight from dropdown */
-  async function adminDeleteSelectedFight(){
-    const sel = $('admin-fights-dropdown'); if(!sel || !sel.value) return alert('Select a fight');
-    const id = sel.value;
-    if(!confirm('Delete selected fight?')) return;
-    await adminDeleteFight(id);
-  }
-  
-  /* Delete fight helper */
-  async function adminDeleteFight(id){
-    try{
-      
-// 🗑️ Delete fight
-$('delete-fight-btn').addEventListener('click', async () => {
+/* 🗑️ Admin: Delete selected fight */
+async function adminDeleteSelectedFight() {
   const selectedFightId = $('admin-fights-dropdown').value;
-  if (!selectedFightId) return alert('Select a fight first!');
-  if (!confirm('Are you sure you want to delete this fight?')) return;
-
-  // Delete the fight from Firestore
-  await deleteDoc(doc(db, "fights", selectedFightId));
-
-  // 🔁 Reload fights and recalculate records/points
-  await loadFightsFromFirestore();
-  await recomputeAllFighterStats(); // <-- THIS FIXES RECORDS NOT UPDATING
-
-  // Rebuild UI
-  populateAdminFightsDropdown();
-  populateAdminFightsList();
-  renderAll();
-
-  alert('Fight deleted and stats updated.');
-});
-
-      closeEditFightModal();
-      alert('Deleted.');
-    }catch(e){ console.error(e); alert('Failed to delete'); }
+  if (!selectedFightId) {
+    alert('Select a fight first!');
+    return;
   }
+
+  const confirmDelete = confirm('Are you sure you want to delete this fight?');
+  if (!confirmDelete) return;
+
+  try {
+    // 🗑️ Delete from Firestore
+    await db.collection("fights").doc(selectedFightId).delete();
+
+
+// 🔁 Recompute updated stats
+await recomputeAllFighterStats();
+
+    // 🧮 Recompute and render rankings
+    const { world, caf } = computeRankings();
+    renderRankings(world, 'world-rankings');
+    renderRankings(caf, 'caf-rankings');
+
+    // ♻️ Refresh Admin UI
+    populateAdminFightsDropdown();
+    populateAdminFightsList();
+    renderAll();
+
+    alert('Fight deleted and stats updated.');
+  } catch (e) {
+    console.error(e);
+    alert('Failed to delete fight.');
+  }
+}
+
+
+
+
   
   /* Admin: delete fighter */
   function deleteFighter(id){
@@ -2388,9 +2374,10 @@ $('delete-fight-btn').addEventListener('click', async () => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escapeHtml(f.name)} ${f.retired ? '<span style="color:#f87171;font-size:12px;margin-left:6px;">[Retired]</span>' : ''}</td>
-        <td>${escapeHtml(f.platform||'—')}</td>
+        <td>${escapeHtml(f.region||'—')}</td>
         <td>${(f.wins||0)}-${(f.losses||0)}-${(f.draws||0)}</td>
-        <td>${Number(points).toFixed(1)}</td>
+
+        
         <td>
           <button class="btn" onclick="openEditFighter('${f.id}')"><i class="fas fa-edit"></i></button>
           <button class="btn" onclick="toggleRetire('${f.id}')">${f.retired ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-user-slash"></i>'}</button>
@@ -2462,25 +2449,8 @@ $('delete-fight-btn').addEventListener('click', async () => {
   
   /* Kick off initial setup after listeners have time to fill data */
   setTimeout(initPage, 600);
-
- /* 🔓 AUTO-UNLOCK ADMIN DASHBOARD ON PAGE LOAD (FOR TESTING) */
-document.addEventListener('DOMContentLoaded', () => {
-  const loginSection = document.getElementById('admin-login');
-  const dashboard = document.getElementById('admin-dashboard');
-
-  if (loginSection && dashboard) {
-    loginSection.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    console.log('✅ Admin panel auto-unlocked for testing');
-  }
-});
-
-
   </script>
   
-  
-    
-
   </body>
   </html>
   <!-- END Part 6 of 6 -->
