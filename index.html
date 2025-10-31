@@ -1456,17 +1456,291 @@ function computeRankings() {
 }
 
 function renderAll() {
-  const { world, caf } = computeRankings();
-// 🧠 Cache the latest computed rankings for faster reloads
-localStorage.setItem('cachedRankings', JSON.stringify({ world, caf }));
+  // compute rankings (may return { world, caf } or may compute internally)
+  const rankingResult = computeRankings();
+  // defensive unpack: allow computeRankings to return undefined / something else
+  const world = rankingResult?.world || [];
+  const caf   = rankingResult?.caf   || [];
 
-  renderChampionCard('world', $('world-champion-card'));
-  renderChampionCard('caf', $('caf-champion-card'));
-  renderRankings(world, 'world-rankings');
-  renderRankings(caf, 'caf-rankings');
-  renderPlayers();
-  renderFights();
+  // DEBUG — inspect what computeRankings returned
+  console.log('🔎 renderAll: computeRankings result:', {
+    hasResult: !!rankingResult,
+    worldLen: world.length,
+    cafLen: caf.length,
+    rankingResult
+  });
+
+  // 🧠 Cache the latest computed rankings for faster reloads
+  try { localStorage.setItem('cachedRankings', JSON.stringify({ world, caf })); } catch(e){}
+
+  // Render champion cards safely (only if the DOM node exists)
+  if (typeof renderChampionCard === 'function') {
+    try {
+      if ($('world-champion-card')) renderChampionCard('world', $('world-champion-card'));
+      else console.warn('⚠️ world-champion-card not found in DOM');
+    } catch (e) { console.error('renderChampionCard(world) error', e); }
+
+    try {
+      if ($('caf-champion-card')) renderChampionCard('caf', $('caf-champion-card'));
+      else console.warn('⚠️ caf-champion-card not found in DOM');
+    } catch (e) { console.error('renderChampionCard(caf) error', e); }
+  } else {
+    console.warn('⚠️ renderChampionCard function missing');
+  }
+
+  // Render rankings (renderRankings expects array + container id)
+  if (typeof renderRankings === 'function') {
+    try {
+      renderRankings(world, 'world-rankings');
+    } catch (e) {
+      console.error('renderRankings(world) error', e);
+    }
+    try {
+      renderRankings(caf, 'caf-rankings');
+    } catch (e) {
+      console.error('renderRankings(caf) error', e);
+    }
+  } else {
+    console.warn('⚠️ renderRankings function missing');
+  }
+
+  // Other UI sections
+  try { if (typeof renderPlayers === 'function') renderPlayers(); } catch(e){ console.error('renderPlayers error', e); }
+  try { if (typeof renderFights === 'function') renderFights(); } catch(e){ console.error('renderFights error', e); }
+
+  // Ensure CAF tab refresh too (safe call)
+  try {
+    if (typeof renderCAFTab === 'function') renderCAFTab();
+  } catch (e) {
+    console.error('renderCAFTab error', e);
+  }
+
+  // DEBUG — quick DOM checks to help troubleshoot missing UI
+  console.log('🔎 DOM check:', {
+    worldRankingsEl: !!document.getElementById('world-rankings'),
+    cafRankingsEl:   !!document.getElementById('caf-rankings'),
+    worldChampEl:    !!document.getElementById('world-champion-card'),
+    cafChampEl:      !!document.getElementById('caf-champion-card'),
+  });
 }
+
+
+
+// === CAF rankings renderer (always matches WORLD layout) ===
+
+
+// === UFL CAF RANKINGS — same style as WORLD and functional player cards ===
+
+
+// === Robust CAF rankings renderer + delegated click handling ===
+
+
+// === CAF Rankings renderer — post-process names to attach real fighter IDs & handlers ===
+
+
+// === CAF Tab Rendering (standalone version, identical layout to WORLD) ===
+
+
+/* ================================================================
+   🥋 UFL CAF RANKINGS — identical layout & player cards as WORLD
+   ================================================================ */
+
+   function renderCAFTab() {
+  const container = document.getElementById("caf-rankings");
+  if (!container) return;
+  container.innerHTML = "";
+
+  // Build a CAF-specific ranking list (fallback-safe)
+  const combined = buildCombinedMap();
+  const cafFighters = combined
+    .filter(f => f.isCAFAny || hasCAFFights(f.ids))
+    .map(f => ({
+      ...f,
+      points: calculateRankPoints(f.ids),
+    }))
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 30);
+
+  // Render CAF fighters using WORLD-style rows
+  cafFighters.forEach((f, i) => {
+    const row = document.createElement("div");
+    row.className = "fighter-row hover:bg-[rgba(255,215,0,0.05)] transition cursor-pointer";
+    row.innerHTML = `
+      <div class="rank-num">${i + 1}</div>
+      <div class="fighter-name">${escapeHtml(f.name)}</div>
+      <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
+      <div class="fighter-points">${f.points}</div>
+    `;
+    row.addEventListener("click", () => showFighterCard(f.idMain, true)); // true = CAF mode
+    container.appendChild(row);
+  });
+}
+
+// Helper: detect CAF fights for combined fighter
+function hasCAFFights(ids) {
+  return fights.some(ft => ft.caf && (ids.includes(ft.fighter1) || ids.includes(ft.fighter2)));
+}
+
+// === Unified Fighter Card Modal (WORLD + CAF compatible) ===
+function showFighterCard(fid, cafMode = false) {
+  const fighter = fighters.find(f => f.id === fid);
+  if (!fighter) {
+    alert("Fighter not found.");
+    return;
+  }
+
+  // Choose fights: CAF only or all
+  const relevantFights = fights
+    .filter(f =>
+      (cafMode ? f.caf : !f.caf) &&
+      (f.fighter1 === fid || f.fighter2 === fid)
+    )
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Compute breakdown + badges + streak
+  const combined = buildCombinedMap().find(c => c.ids.includes(fid));
+  const breakdown = calculateRankPoints(combined?.ids || [fid], true);
+  const badges = computeBadgesForCombined(combined?.ids || [fid]);
+
+  // Build modal wrapper
+  const modal = document.createElement("div");
+  modal.className = "player-card-overlay";
+  modal.innerHTML = `
+    <div class="frosted rounded-2xl shadow-xl w-full max-w-[800px] relative">
+      <button class="absolute top-3 right-4 text-gray-400 hover:text-red-400 text-2xl font-bold"
+              onclick="document.body.classList.remove('modal-open'); this.closest('.player-card-overlay').remove()">×</button>
+      
+      <div class="text-center mb-4">
+        <h2 class="text-3xl font-bold text-[var(--gold)]">${fighter.name}</h2>
+        <div class="text-sm text-[var(--muted)]">${cafMode ? "UFL CAF Division" : "UFL WORLD Division"}</div>
+      </div>
+
+      <div class="flex justify-around bg-black bg-opacity-40 py-3 rounded-xl mb-4">
+        <div class="text-center">
+          <div class="text-lg font-bold">${cafMode ? fighter.cafWins || 0 : fighter.wins || 0}</div>
+          <div class="text-xs text-[var(--muted)]">Wins</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-bold">${cafMode ? fighter.cafLosses || 0 : fighter.losses || 0}</div>
+          <div class="text-xs text-[var(--muted)]">Losses</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-bold">${cafMode ? fighter.cafDraws || 0 : fighter.draws || 0}</div>
+          <div class="text-xs text-[var(--muted)]">Draws</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-bold">${cafMode ? fighter.cafKoWins || 0 : fighter.koWins || 0}</div>
+          <div class="text-xs text-[var(--muted)]">KO Wins</div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="mb-4 text-center">
+        ${badges.map(b => `<span class="badge" title="${b.desc}">${b.icon}</span>`).join("") || "<span class='text-[var(--muted)] text-sm'>No badges yet</span>"}
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown">
+        <div><strong>Base:</strong> ${breakdown.base.toFixed(1)}</div>
+        <div><strong>Finish Bonus:</strong> ${breakdown.finish.toFixed(1)}</div>
+        <div><strong>Opponent:</strong> ${breakdown.opponent.toFixed(1)}</div>
+        <div><strong>Recency:</strong> ${breakdown.recency.toFixed(1)}</div>
+        <div><strong>Streak:</strong> ${breakdown.streak.toFixed(1)}</div>
+        <div><strong>Modifiers:</strong> ${breakdown.modifiers.toFixed(1)}</div>
+        <div class="mt-2 text-lg"><strong>Total:</strong> ${breakdown.total}</div>
+      </div>
+
+      <!-- Fight History -->
+      <h3 class="text-[var(--gold)] text-lg mt-6 mb-2 text-center">Fight History</h3>
+      <div id="fight-history" class="max-h-[400px] overflow-y-auto">
+        ${
+          relevantFights.length === 0
+            ? `<div class="text-center text-[var(--muted)] py-4">No ${cafMode ? "CAF" : "WORLD"} fights recorded.</div>`
+            : relevantFights.map(f => {
+                const f1 = fighters.find(x => x.id === f.fighter1)?.name || "Unknown";
+                const f2 = fighters.find(x => x.id === f.fighter2)?.name || "Unknown";
+                const isDraw = f.winner === "0" || f.winner === "draw";
+                const winnerName = isDraw ? "Draw" : fighters.find(x => x.id === f.winner)?.name || "Unknown";
+                const method = f.method || "—";
+                const date = formatDateShort(f.date);
+                const result = isDraw ? "Draw" : `${winnerName} won`;
+                return `
+                  <div class="p-2 border-b border-gray-700 text-sm flex justify-between items-center">
+                    <div class="text-left">
+                      <div class="font-semibold">${f1} vs ${f2}</div>
+                      <div class="text-[var(--muted)]">${method} • ${result}</div>
+                    </div>
+                    <div class="text-[var(--muted)] text-xs">${date}</div>
+                  </div>`;
+              }).join("")
+        }
+      </div>
+    </div>
+  `;
+
+  document.body.classList.add("modal-open");
+  document.body.appendChild(modal);
+}
+
+
+
+
+
+// ✅ Recompute all fighter stats including CAF
+async function recomputeAllFighterStats() {
+  const stats = {};
+  fighters.forEach(f => {
+    stats[f.id] = { 
+      wins: 0, losses: 0, draws: 0, koWins: 0,
+      cafWins: 0, cafLosses: 0, cafDraws: 0, cafKoWins: 0 // ✅ CAF record fields
+    };
+  });
+
+  fights.forEach(ft => {
+    const f1 = ft.fighter1, f2 = ft.fighter2;
+    if (!f1 || !f2) return;
+
+    const winner = (ft.winner === '0' || ft.winner === 0 || ft.winner === 'draw') ? 'DRAW' : ft.winner;
+    const isCAF = !!ft.caf; // ✅ identify CAF fight
+
+    if (winner === 'DRAW') {
+      if (stats[f1]) isCAF ? stats[f1].cafDraws++ : stats[f1].draws++;
+      if (stats[f2]) isCAF ? stats[f2].cafDraws++ : stats[f2].draws++;
+    } else {
+      if (stats[winner]) {
+        if (isCAF) stats[winner].cafWins++;
+        else stats[winner].wins++;
+      }
+      const loser = (winner === f1) ? f2 : f1;
+      if (stats[loser]) {
+        if (isCAF) stats[loser].cafLosses++;
+        else stats[loser].losses++;
+      }
+
+      if ((ft.method || '').toLowerCase().includes('ko')) {
+        if (stats[winner]) {
+          if (isCAF) stats[winner].cafKoWins++;
+          else stats[winner].koWins++;
+        }
+      }
+    }
+  });
+
+  // ✅ batch update Firestore with both normal and CAF stats
+  const batch = db.batch();
+  Object.keys(stats).forEach(fid => {
+    const ref = db.collection('fighters').doc(fid);
+    batch.set(ref, stats[fid], { merge: true });
+  });
+
+  try {
+    await batch.commit();
+    console.log('✅ Recomputed fighter stats (including CAF).');
+  } catch (e) {
+    console.error('🔥 recomputeAllFighterStats error', e);
+  }
+}
+
 
 function refreshRankings() {
   renderAll();
@@ -2103,41 +2377,60 @@ function adminAddFighter(){
 
   
   /* Recompute ALL fighter stats from fights (safe canonical source of truth) */
-  async function recomputeAllFighterStats(){
-    const stats = {};
-    fighters.forEach(f => stats[f.id] = { wins:0, losses:0, draws:0, koWins:0 });
-  
-    fights.forEach(ft => {
-      const f1 = ft.fighter1, f2 = ft.fighter2;
-      if(!f1 || !f2) return;
-      const winner = (ft.winner === '0' || ft.winner === 0) ? 'DRAW' : ft.winner;
-      if(winner === 'DRAW'){
-        if(stats[f1]) stats[f1].draws++;
-        if(stats[f2]) stats[f2].draws++;
-      } else {
-        if(stats[winner]) stats[winner].wins++;
-        const loser = (winner === f1) ? f2 : f1;
-        if(stats[loser]) stats[loser].losses++;
-        if((ft.method||'').toLowerCase().includes('ko') && stats[winner]) stats[winner].koWins++;
+  async function recomputeAllFighterStats() {
+  const stats = {};
+  fighters.forEach(f => {
+    stats[f.id] = { 
+      wins: 0, losses: 0, draws: 0, koWins: 0,
+      cafWins: 0, cafLosses: 0, cafDraws: 0, cafKoWins: 0 // ✅ add CAF record fields
+    };
+  });
+
+  fights.forEach(ft => {
+    const f1 = ft.fighter1, f2 = ft.fighter2;
+    if (!f1 || !f2) return;
+
+    const winner = (ft.winner === '0' || ft.winner === 0 || ft.winner === 'draw') ? 'DRAW' : ft.winner;
+    const isCAF = !!ft.caf; // ✅ identify CAF fight
+
+    if (winner === 'DRAW') {
+      if (stats[f1]) isCAF ? stats[f1].cafDraws++ : stats[f1].draws++;
+      if (stats[f2]) isCAF ? stats[f2].cafDraws++ : stats[f2].draws++;
+    } else {
+      if (stats[winner]) {
+        if (isCAF) stats[winner].cafWins++;
+        else stats[winner].wins++;
       }
-    });
-  
-    // batch commit updates
-    const batch = db.batch();
-    Object.keys(stats).forEach(fid=>{
-      const ref = db.collection('fighters').doc(fid);
-      batch.set(ref, {
-        wins: stats[fid].wins,
-        losses: stats[fid].losses,
-        draws: stats[fid].draws,
-        koWins: stats[fid].koWins
-      }, { merge:true });
-    });
-    try{
-      await batch.commit();
-      console.log('Recomputed fighter stats from fights.');
-    }catch(e){ console.error('recompute stats error', e); }
+      const loser = (winner === f1) ? f2 : f1;
+      if (stats[loser]) {
+        if (isCAF) stats[loser].cafLosses++;
+        else stats[loser].losses++;
+      }
+
+      if ((ft.method || '').toLowerCase().includes('ko')) {
+        if (stats[winner]) {
+          if (isCAF) stats[winner].cafKoWins++;
+          else stats[winner].koWins++;
+        }
+      }
+    }
+  });
+
+  // ✅ batch update Firestore with both normal and CAF stats
+  const batch = db.batch();
+  Object.keys(stats).forEach(fid => {
+    const ref = db.collection('fighters').doc(fid);
+    batch.set(ref, stats[fid], { merge: true });
+  });
+
+  try {
+    await batch.commit();
+    console.log('✅ Recomputed fighter stats (including CAF).');
+  } catch (e) {
+    console.error('🔥 recomputeAllFighterStats error', e);
   }
+}
+
   
   /* Admin: Add Fight */
   async function adminAddFight(){
