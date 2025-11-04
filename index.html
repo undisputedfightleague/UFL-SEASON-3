@@ -2753,15 +2753,35 @@ function closePlayerCard() {
       wrapper.appendChild(sel);
   
       // For UFL world & CAF add defenses input and last defense display
-      if(field === 'uflWorld' || field === 'uflCAF'){
-        const defLabel = document.createElement('div'); defLabel.style.marginTop='8px'; defLabel.style.fontSize='13px'; defLabel.textContent = 'Title Defenses (editable)';
-        const defInput = document.createElement('input'); defInput.type='number'; defInput.min='0'; defInput.id = `champ-${field}-def`; defInput.style.width='120px'; defInput.style.marginTop='6px';
-        defInput.value = field === 'uflWorld' ? (champions.uflWorldDefenses||0) : (champions.uflCAFDefenses||0);
-        const lastDiv = document.createElement('div'); lastDiv.style.fontSize='12px'; lastDiv.style.marginTop='6px';
-        const lastDate = field === 'uflWorld' ? formatDateShort(champions.uflWorldLastDefense) : formatDateShort(champions.uflCAFLastDefense);
-        lastDiv.innerHTML = `Last Defense: ${lastDate || 'N/A'}`;
-        wrapper.appendChild(defLabel); wrapper.appendChild(defInput); wrapper.appendChild(lastDiv);
-      }
+    // For World, CAF, RBC, ABC add defenses input and last defense display
+if (['uflWorld', 'uflCAF', 'rbc', 'abc'].includes(field)) {
+  const defLabel = document.createElement('div');
+  defLabel.style.marginTop = '8px';
+  defLabel.style.fontSize = '13px';
+  defLabel.textContent = 'Title Defenses (editable)';
+
+  const defInput = document.createElement('input');
+  defInput.type = 'number';
+  defInput.min = '0';
+  defInput.id = `champ-${field}-def`;
+  defInput.style.width = '120px';
+  defInput.style.marginTop = '6px';
+
+  // read defenses from champions object using consistent naming
+  defInput.value = (typeof champions === 'object' && champions) ? (champions[`${field}Defenses`] || 0) : 0;
+
+  const lastDiv = document.createElement('div');
+  lastDiv.style.fontSize = '12px';
+  lastDiv.style.marginTop = '6px';
+
+  const lastDate = (typeof champions === 'object' && champions) ? champions[`${field}LastDefense`] : null;
+  lastDiv.innerHTML = `Last Defense: ${formatDateShort(lastDate) || 'N/A'}`;
+
+  wrapper.appendChild(defLabel);
+  wrapper.appendChild(defInput);
+  wrapper.appendChild(lastDiv);
+}
+
   
       // Vacate button for convenience
       const vac = document.createElement('button');
@@ -2789,18 +2809,31 @@ function closePlayerCard() {
   async function saveChampionAssignments(){
     const payload = {};
     TITLES.forEach(title=>{
-      const field = mapTitleToField(title);
-      const sel = $(`champ-select-${field}`);
-      payload[field] = (sel && sel.value) ? sel.value : null;
-      if(field === 'uflWorld'){
-        const def = parseInt($('champ-uflWorld-def')?.value || 0,10) || 0;
-        payload.uflWorldDefenses = def;
-      }
-      if(field === 'uflCAF'){
-        const def = parseInt($('champ-uflCAF-def')?.value || 0,10) || 0;
-        payload.uflCAFDefenses = def;
-      }
-    });
+  const field = mapTitleToField(title);
+  const sel = $(`champ-select-${field}`);
+  payload[field] = (sel && sel.value) ? sel.value : null;
+
+  if (field === 'uflWorld') {
+    const def = parseInt($('champ-uflWorld-def')?.value || 0, 10) || 0;
+    payload.uflWorldDefenses = def;
+  }
+  if (field === 'uflCAF') {
+    const def = parseInt($('champ-uflCAF-def')?.value || 0, 10) || 0;
+    payload.uflCAFDefenses = def;
+  }
+  if (field === 'rbc') {
+    const def = parseInt($('champ-rbc-def')?.value || 0, 10) || 0;
+    payload.rbcDefenses = def;
+  }
+  if (field === 'abc') {
+    const def = parseInt($('champ-abc-def')?.value || 0, 10) || 0;
+    payload.abcDefenses = def;
+  }
+});
+
+
+
+
     try{
       await db.collection('settings').doc('champions').set(payload, { merge:true });
       alert('Saved champion assignments.');
@@ -2808,16 +2841,31 @@ function closePlayerCard() {
   }
   
   /* Clear all champion assignments */
-  async function resetChampionAssignments(){
-    if(!confirm('Clear all champion assignments?')) return;
+  async function resetChampionAssignments() {
+  if (!confirm('Clear all champion assignments?')) return;
+
+  try {
+    // 🧠 Reset all champion fields to defaults
     const payload = {
-      uflWorld:null, uflWorldDefenses:0, uflWorldLastDefense:'',
-      uflCAF:null, uflCAFDefenses:0, uflCAFLastDefense:'',
-      uflPC:null, uflPS5:null, uflXbox:null,
-      rbcPC:null, rbcPS5:null, rbcXbox:null
+      uflWorld: null, uflWorldDefenses: 0, uflWorldLastDefense: '',
+      uflCAF: null,  uflCAFDefenses: 0,  uflCAFLastDefense: '',
+      uflPC: null, uflPS5: null, uflXbox: null,
+      rbc: null, rbcDefenses: 0, rbcLastDefense: '',
+      abc: null, abcDefenses: 0, abcLastDefense: '',
+      rbcPC: null, rbcPS5: null, rbcXbox: null
     };
-    try{ await db.collection('settings').doc('champions').set(payload, { merge:true }); alert('Cleared'); }catch(e){console.error(e); alert('Failed');}
+
+    // 💾 Save the cleared champion info back to Firestore
+    await db.collection('settings').doc('champions').set(payload, { merge: true });
+
+    alert('All champion data has been reset.');
+    renderAll(); // 🔁 refresh UI so the changes appear instantly
+  } catch (e) {
+    console.error('resetChampionAssignments error:', e);
+    alert('Failed to reset champion data.');
   }
+}
+
   
 /* Admin: Add Fighter */
 function adminAddFighter(){
