@@ -667,6 +667,28 @@ html, body {
 <!-- 🏠 HOME TAB -->
 <div id="home-tab" class="tab-content">
 
+  <h1>UFL SEASON 3</h1>
+  
+
+  <ul style="list-style:none;padding:0;">
+    <br>
+    <li><b>UFL WORLD CHAMPIONSHIP</b>
+      <li><b>RBC CHAMPIONSHIP -</b> EU PLAYERS</li>
+      <li><b>ABC CHAMPIONSHIP -</b> NA PLAYERS</li>
+
+      <br> </br>
+
+
+      <h1>NEW BADGES</h1>
+  
+
+      <ul style="list-style:none;padding:0;">
+        <br>
+          <li><b>BONUS:</b>EARN BY GETTING FIGHT OF THE NIGHT</li>
+          <li><b>ABC:</b> NA PLAYERS</li>
+    
+          <br> </br>     
+
   <h1>UFL RANKINGS BREAKDOWN</h1>
   
 
@@ -1972,6 +1994,8 @@ function showFighterCard(fid, mode = "world") {
   
 
   modal.innerHTML = `
+
+  
   <div class="modal frosted" style="max-width:900px;">
     <button class="btn btn-danger" style="position:absolute;top:10px;right:14px;font-size:16px;"
             onclick="document.body.classList.remove('modal-open'); this.closest('.player-card-overlay').remove()">✖</button>
@@ -3247,6 +3271,9 @@ await recomputeAllFighterStats();
   /* Kick off initial setup after listeners have time to fill data */
   setTimeout(initPage, 600);
   </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   
   </body>
   </html>
