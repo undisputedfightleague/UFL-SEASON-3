@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>UFL WORLD & CAF RANKINGS - FINAL V4</title>
+<title>UFL RANKINGS</title>
 
 
 
@@ -500,6 +500,121 @@ html, body {
   }
 }
 
+/* 🥋 Make CAF Player Cards look identical to WORLD */
+#caf-tab .modal,
+.player-card-overlay .modal {
+  background: rgba(6,6,6,0.94);
+  color: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid rgba(255,215,0,0.08);
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.player-card-overlay .fights-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 140px;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 14px;
+}
+
+.player-card-overlay .fights-row div:first-child {
+  color: var(--muted);
+}
+
+.player-card-overlay .fights-row div:nth-child(2) {
+  font-weight: 600;
+  color: #fff;
+}
+
+.player-card-overlay .fights-row div:nth-child(3),
+.player-card-overlay .fights-row div:nth-child(4) {
+  text-align: right;
+  color: var(--muted);
+}
+
+.player-card-overlay .badge {
+  font-size: 14px;
+}
+
+
+/* ===== CAF / player card modal — force-match WORLD styling ===== */
+.player-card-overlay,
+.modal-backdrop,
+#fighter-modal,
+.player-card,
+.player-card .modal,
+.player-card-overlay .modal,
+.modal-backdrop .modal,
+#fighter-modal .modal,
+#fighter-modal .player-card,
+.player-card-overlay .player-card,
+.frosted.player-card,
+.modal {
+  background: rgba(6,6,6,0.94) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(255,215,0,0.08) !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4) !important;
+}
+
+/* fights-row grid style for any fights-row inside any modal/backdrop */
+.player-card-overlay .fights-row,
+.modal-backdrop .fights-row,
+.player-card .fights-row,
+#fighter-modal .fights-row,
+.modal .fights-row {
+  display: grid !important;
+  grid-template-columns: 100px 1fr 120px 140px !important;
+  gap: 14px !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 8px 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  font-size: 14px !important;
+}
+
+.player-card-overlay .fights-row div:first-child,
+.modal-backdrop .fights-row div:first-child,
+.modal .fights-row div:first-child {
+  color: var(--muted) !important;
+}
+
+.player-card-overlay .fights-row div:nth-child(2),
+.modal .fights-row div:nth-child(2) {
+  font-weight: 600 !important;
+  color: #fff !important;
+}
+
+.player-card-overlay .fights-row div:nth-child(3),
+.player-card-overlay .fights-row div:nth-child(4),
+.modal .fights-row div:nth-child(3),
+.modal .fights-row div:nth-child(4) {
+  text-align: right !important;
+  color: var(--muted) !important;
+}
+
+.player-card-overlay .badge,
+.modal .badge,
+.player-card .badge,
+.player-card-overlay .player-card .badge {
+  font-size: 14px !important;
+}
+
+
+/* 🏆 CHAMPION badge glow effect */
+.badge.glow {
+  background: radial-gradient(circle at center, gold 0%, rgba(255, 215, 0, 0.3) 60%, transparent 100%);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px gold, 0 0 20px rgba(255, 215, 0, 0.8);
+  border: 1px solid rgba(255, 215, 0, 0.7);
+}
 
 
 
@@ -523,9 +638,17 @@ html, body {
   <button id="btn-world" class="tab-btn tab-active" onclick="switchTab('world')">
     <i class="fas fa-globe-americas"></i>&nbsp;UFL WORLD
   </button>
-  <button id="btn-caf" class="tab-btn" onclick="switchTab('caf')">
-    <i class="fas fa-user-pen"></i>&nbsp;UFL CAF
+
+  <button id="btn-rbc" class="tab-btn" onclick="switchTab('rbc')">
+    <i class="fas fa-flag"></i>&nbsp;RBC
   </button>
+
+  <button id="btn-abc" class="tab-btn" onclick="switchTab('abc')">
+    <i class="fas fa-star"></i>&nbsp;ABC
+  </button>
+
+
+  
   <button id="btn-players" class="tab-btn" onclick="switchTab('players')">
     <i class="fas fa-user-friends"></i>&nbsp;PLAYERS
   </button>
@@ -588,27 +711,56 @@ html, body {
       </div>
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <h2 style="margin:0;font-family:Orbitron;">UFL WORLD TOP 30</h2>
+          <h2 style="margin:0;font-family:Orbitron;">UFL WORLD RANKINGS</h2>
+          <input
+          id="world-search"
+          placeholder="Search..."
+          oninput="renderAll()"
+          onkeyup="renderAll()"
+          class="frosted"
+          style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);font-size:14px;color:#fff;background:rgba(0,0,0,0.4);"
+        />
+        
         </div>
         <div id="world-rankings" class="rank-list"></div>
+         
       </div>
     </div>
   </div>
 
-  <!-- CAF TAB -->
-  <div id="caf-tab" class="tab-panel hidden" style="margin-top:14px;">
-    <div class="grid-main">
-      <div>
-        <div id="caf-champion-card" class="champion-card"></div>
+<!-- 🏴‍☠️ RBC TAB -->
+<div id="rbc-tab" class="tab-panel hidden" style="margin-top:14px;">
+  <div class="grid-main">
+    <div>
+      <div id="rbc-champion-card" class="champion-card"></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h2 style="margin:0;font-family:Orbitron;">RBC TOP 15</h2>
       </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <h2 style="margin:0;font-family:Orbitron;">UFL CAF TOP 30</h2>
-        </div>
-        <div id="caf-rankings" class="rank-list"></div>
-      </div>
+      <div id="rbc-rankings" class="rank-list"></div>
     </div>
   </div>
+</div>
+
+<!-- 🦅 ABC TAB -->
+<div id="abc-tab" class="tab-panel hidden" style="margin-top:14px;">
+  <div class="grid-main">
+    <div>
+      <div id="abc-champion-card" class="champion-card"></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h2 style="margin:0;font-family:Orbitron;">ABC TOP 15</h2>
+      </div>
+      <div id="abc-rankings" class="rank-list"></div>
+    </div>
+  </div>
+</div>
+
+  
+
+
 
   <!-- PLAYERS TAB -->
   <div id="players-tab" class="tab-panel hidden" style="margin-top:14px;">
@@ -719,11 +871,7 @@ html, body {
             <input id="add-fight-date" type="date" class="form-control w-full p-1 border rounded" />
           </div>
         
-          <!-- CAF -->
-          <div class="form-group mb-2">
-            <label for="add-fight-caf" class="block text-sm font-semibold mb-1">CAF</label>
-            <input id="add-fight-caf" type="checkbox" class="form-checkbox h-4 w-4 text-blue-500" />
-          </div>
+      
         
           <!-- TITLE FIGHT -->
           <div class="form-group mb-2">
@@ -739,7 +887,6 @@ html, body {
             <label for="add-fight-bonus" class="block text-sm font-semibold mb-1">BONUS</label>
             <select id="add-fight-bonus" class="form-control w-full p-1 border rounded">
               <option value="none">NONE</option>
-              <option value="POTN">POTN (Performance of the Night)</option>
               <option value="FOTN">FOTN (Fight of the Night)</option>
             </select>
           </div>
@@ -926,10 +1073,12 @@ html, body {
   let champions = {};  // champion assignments from settings/champions doc
   
   const TITLES = [
-    "UFL World Champion","UFL CAF Champion",
-    "UFL PC Champion","UFL PS5 Champion","UFL Xbox Champion",
-    "RBC PC Champion","RBC PS5 Champion","RBC Xbox Champion"
-  ];
+  "UFL World Champion",
+  "RBC Champion",
+  "ABC Champion",
+  "UFL CAF Champion"
+];
+
   
   const $ = id => document.getElementById(id);
   const escapeHtml = s => !s ? '' : String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -948,42 +1097,44 @@ html, body {
      🔁 FIRESTORE LISTENERS
      =========================== */
   
-  db.collection('fighters').onSnapshot(snap=>{
-    fighters = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-    // normalize expected fields
-    fighters.forEach(f=>{
-      f.wins = f.wins || 0;
-      f.losses = f.losses || 0;
-      f.draws = f.draws || 0;
-      f.koWins = f.koWins || 0;
-      f.retired = !!f.retired;
-      f.platform = f.platform || '';
-      // convenience totals (kept for rendering, recalculated in recomputeAllFighterStats when needed)
-      f.totalFights = (f.wins + f.losses + f.draws) || 0;
-    });
-    // update any UI selects / lists that depend on fighters
-    populateEditFightSelects?.();
-    populateChampionTitleSelects?.();
-    populateAdminFighters?.();
-    renderAll?.();
-  }, e=>console.error('fighters listener error', e));
+     db.collection('fighters').onSnapshot(snap => {
+  fighters = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  // normalize expected fields
+  fighters.forEach(f => {
+    f.wins = f.wins || 0;
+    f.losses = f.losses || 0;
+    f.draws = f.draws || 0;
+    f.koWins = f.koWins || 0;
+    f.retired = !!f.retired;
+    f.platform = f.platform || '';
+    // convenience totals (kept for rendering, recalculated in recomputeAllFighterStats when needed)
+    f.totalFights = (f.wins + f.losses + f.draws) || 0;
+  });
+  // update any UI selects / lists that depend on fighters
+  populateEditFightSelects?.();
+  populateChampionTitleSelects?.();
+  populateAdminFighters?.();
+  renderAll?.();
+}, e => console.error('fighters listener error', e));
+
   
-  db.collection('fights').orderBy('date','desc').onSnapshot(snap=>{
-    fights = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-    // ensure consistent fields
-    fights.forEach(f=>{
-      f.platform = f.platform || '';
-      f.method = f.method || '';
-      f.caf = !!f.caf;
-      // store human readable winnerName/fighter names if not present (some older entries might miss them)
-      f.fighter1Name = f.fighter1Name || (fighters.find(x=>x.id===f.fighter1)?.name || '');
-      f.fighter2Name = f.fighter2Name || (fighters.find(x=>x.id===f.fighter2)?.name || '');
-      f.winnerName = (f.winner === '0' || f.winner === 0) ? 'Draw' : (fighters.find(x=>x.id===f.winner)?.name || '');
-    });
-    populateEditFightSelects?.();
-    recomputeTitleDefensesFromFights?.();
-    renderAll?.();
-  }, e=>console.error('fights listener error', e));
+db.collection('fights').orderBy('date','desc').onSnapshot(snap => {
+  fights = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  // ensure consistent fields
+  fights.forEach(f => {
+    f.platform = f.platform || '';
+    f.method = f.method || '';
+    f.caf = !!f.caf;
+    // store human readable winnerName/fighter names if not present (some older entries might miss them)
+    f.fighter1Name = f.fighter1Name || (fighters.find(x => x.id === f.fighter1)?.name || '');
+    f.fighter2Name = f.fighter2Name || (fighters.find(x => x.id === f.fighter2)?.name || '');
+    f.winnerName = (f.winner === '0' || f.winner === 0) ? 'Draw' : (fighters.find(x => x.id === f.winner)?.name || '');
+  });
+  populateEditFightSelects?.();
+  recomputeTitleDefensesFromFights?.();
+  renderAll?.();
+}, e => console.error('fights listener error', e));
+
   
   db.collection('settings').doc('champions').onSnapshot(doc=>{
     champions = doc.exists ? doc.data() : {};
@@ -1121,6 +1272,10 @@ function buildCombinedMap() {
   const winPct = totalFights > 0 ? (combined.wins / totalFights) : 0;
   const badges = [];
 
+
+
+  
+
   // 🏛️ ICON BADGE — 10+ fights and 80%+ win rate
   if (totalFights >= 10 && winPct >= 0.8) {
     badges.push({ key: 'Icon', icon: '🏛️', desc: 'Icon' });
@@ -1178,8 +1333,46 @@ if (totalFights >= 4 && totalFights < 8 && winPct >= 0.8) {
   });
 }
 
+// 🏅 BONUS — Fight of the Night only
+let fotnCount = 0;
+
+fights.forEach(ft => {
+  const involved = ids.includes(ft.fighter1) || ids.includes(ft.fighter2);
+  if (!involved) return;
+
+  // handle different Firestore field names gracefully
+  const rawBonus = (ft.bonus || ft.bonusType || ft.fightBonus || '').toString().toLowerCase();
+
+  // match either explicit FOTN or flexible wording that includes 'fight'
+  if (rawBonus === 'fotn' || /fight/i.test(rawBonus)) {
+    fotnCount++;
+  }
+});
+
+if (fotnCount > 0) {
+  badges.push({
+    key: 'Fight of the Night',
+    icon: '💰',
+    desc: `Fight of the Night ×${fotnCount}`
+  });
+}
+
+
+
+
+
+
   // Order badges logically by importance
-  const order = ['Icon', 'Winning Streak', 'KO Artist', 'Workhorse', 'Rising Star'];
+  const order = [
+  'Champion',
+  'Former Champion',
+  'Icon',
+  'Winning Streak',
+  'KO Artist',
+  'Workhorse',
+  'Rising Star',
+  'Fight of the Night'
+];
   badges.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
 
   return badges;
@@ -1264,7 +1457,7 @@ function daysBetween(d1, d2) {
 // ---------------------------------------------
 // 🧮 Main Ranking Calculator
 // ---------------------------------------------
-function calculateRankPoints(fighterIds, returnBreakdown = false) {
+function calculateRankPoints(fighterIds, returnBreakdown = false, fightsList = null) {
   // --- Breakdown trackers (for Player Card)
   let breakdown = {
     base: 0,
@@ -1278,9 +1471,11 @@ function calculateRankPoints(fighterIds, returnBreakdown = false) {
 
   const now = new Date();
   const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
-  const combinedFights = fights.filter(
-    f => fighterIds.includes(f.fighter1) || fighterIds.includes(f.fighter2)
-  );
+  const fightsToUse = Array.isArray(fightsList) ? fightsList : fights;
+const combinedFights = fightsToUse.filter(
+  f => fighterIds.includes(f.fighter1) || fighterIds.includes(f.fighter2)
+);
+
 
   if (combinedFights.length === 0) return returnBreakdown ? { ...breakdown, total: 0 } : 0;
 
@@ -1424,43 +1619,144 @@ function getCurrentRank(fid) {
   return index >= 0 ? index + 1 : 999;
 }
 
+function countCAFFights() {
+  const totalCAF = fights.filter(f => f.caf === true).length;
+  console.log(`🥋 CAF fights detected: ${totalCAF}`);
+}
+
 function computeRankings() {
   const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
 
   // 🚫 Exclude retired fighters and champions
   const activeOnly = combined.filter(f => {
     const main = fighters.find(x => x.id === f.idMain);
-
     const isChampion =
       (champions?.uflWorld && f.ids.includes(champions.uflWorld)) ||
       (champions?.uflCAF && f.ids.includes(champions.uflCAF));
-
     return !main?.retired && !isChampion;
   });
 
-  // 🧮 Calculate points
-  activeOnly.forEach(f => {
-    f.points = calculateRankPoints(f.ids);
-  });
+// --- 1) Compute base points for WORLD/CAF with correct CAF filtering ---
+activeOnly.forEach(f => {
+  try {
+    // Build the list of fights that involve this fighter
+    const relevantFights = (Array.isArray(fights) ? fights : []).filter(ft => {
+      const involved = ft.fighter1 === f.id || ft.fighter2 === f.id;
+      if (!involved) return false;
 
-  // 📊 Sort by points descending
+      // ✅ Exclude CAF fights when computing WORLD points
+      // Only include CAF fights when computing CAF rankings later
+      return !ft.caf;  // this means "only non-CAF fights"
+    });
+
+    // Calculate points using only the non-CAF fights
+    const pts = calcPointsWithFightsForIds(f.ids, relevantFights);
+    f.points = pts;
+  } catch (err) {
+    console.error("calculateRankPoints error for world:", err);
+    f.points = 0;
+  }
+});
+
+  // sort descending
   activeOnly.sort((a, b) => b.points - a.points);
 
-  // 🏆 Separate UFL World and CAF rankings
-  const world = activeOnly.filter(f => !f.isCAFAny).slice(0, 30);
-  const caf = activeOnly.filter(f => f.isCAFAny).slice(0, 30);
+  // original world & caf
+  const world = activeOnly.filter(f => !f.isCAFAny);
+const caf   = activeOnly.filter(f => f.isCAFAny);
 
-  return { world, caf };
+  // --- Helper: safely call calculateRankPoints with a filtered fights list ---
+  function calcPointsWithFightsForIds(ids, fightsSubset) {
+    // preserve original global fights reference
+    const originalFights = (typeof fights !== 'undefined') ? fights : undefined;
+    try {
+      // temporarily shadow/replace the global fights array so calculateRankPoints operates only on region fights
+      if (typeof window !== 'undefined') {
+        // browser global
+        window.fights = fightsSubset;
+      } else {
+        // node-like environment fallback
+        fights = fightsSubset;
+      }
+      // call the same API as original; pass ids (same signature as your code uses)
+      return calculateRankPoints(ids);
+    } catch (err) {
+      console.error("calcPointsWithFightsForIds error:", err);
+      return 0;
+    } finally {
+      // restore original fights array
+      if (typeof window !== 'undefined') {
+        window.fights = originalFights;
+      } else {
+        fights = originalFights;
+      }
+    }
+  }
 
+  // --- 2) Build RBC (EU vs EU) using only region fights ---
+  const rbcFights = (Array.isArray(fights) ? fights : [])
+    .filter(ft => {
+      const f1 = fighters.find(x => x.id === ft.fighter1);
+      const f2 = fighters.find(x => x.id === ft.fighter2);
+      return f1?.region === 'EU' && f2?.region === 'EU';
+    });
 
+  const rbcFightIds = [...new Set(rbcFights.flatMap(ft => [ft.fighter1, ft.fighter2]))];
+
+  const rbc = activeOnly
+    .filter(f => f.ids.some(id => rbcFightIds.includes(id)))
+    .map(f => {
+      // only use the fighter ids that actually participated in region fights
+      const relevantIds = f.ids.filter(id => rbcFightIds.includes(id));
+      // calculate points using only rbcFights (temporary swap)
+      const pts = calcPointsWithFightsForIds(relevantIds, rbcFights);
+      return { ...f, points: pts };
+    })
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 15);
+
+  // --- 3) Build ABC (NA vs NA) using only region fights ---
+  const abcFights = (Array.isArray(fights) ? fights : [])
+    .filter(ft => {
+      const f1 = fighters.find(x => x.id === ft.fighter1);
+      const f2 = fighters.find(x => x.id === ft.fighter2);
+      return f1?.region === 'NA' && f2?.region === 'NA';
+    });
+
+  const abcFightIds = [...new Set(abcFights.flatMap(ft => [ft.fighter1, ft.fighter2]))];
+
+  const abc = activeOnly
+    .filter(f => f.ids.some(id => abcFightIds.includes(id)))
+    .map(f => {
+      const relevantIds = f.ids.filter(id => abcFightIds.includes(id));
+      const pts = calcPointsWithFightsForIds(relevantIds, abcFights);
+      return { ...f, points: pts };
+    })
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 15);
+
+  // --- Debugging output (remove when confirmed) ---
+  console.log("computeRankings: world count", world.length, "caf", caf.length, "rbc", rbc.length, "abc", abc.length);
+  // list top names for quick check
+  console.log("RBC top names:", rbc.map(x => x.name).slice(0,10));
+  console.log("ABC top names:", abc.map(x => x.name).slice(0,10));
+
+  // ✅ return all four
+  return { world, rbc, abc, caf,  };
 }
 
+
+
 function renderAll() {
+
+  
   // compute rankings (may return { world, caf } or may compute internally)
   const rankingResult = computeRankings();
   // defensive unpack: allow computeRankings to return undefined / something else
   const world = rankingResult?.world || [];
   const caf   = rankingResult?.caf   || [];
+  const rbc   = rankingResult?.rbc   || [];
+  const abc   = rankingResult?.abc   || [];
 
   // DEBUG — inspect what computeRankings returned
   console.log('🔎 renderAll: computeRankings result:', {
@@ -1474,19 +1770,29 @@ function renderAll() {
   try { localStorage.setItem('cachedRankings', JSON.stringify({ world, caf })); } catch(e){}
 
   // Render champion cards safely (only if the DOM node exists)
-  if (typeof renderChampionCard === 'function') {
-    try {
-      if ($('world-champion-card')) renderChampionCard('world', $('world-champion-card'));
-      else console.warn('⚠️ world-champion-card not found in DOM');
-    } catch (e) { console.error('renderChampionCard(world) error', e); }
+if (typeof renderChampionCard === 'function') {
+  try {
+    if ($('world-champion-card')) renderChampionCard('world', $('world-champion-card'));
+    else console.warn('⚠️ world-champion-card not found in DOM');
+  } catch (e) { console.error('renderChampionCard(world) error', e); }
 
-    try {
-      if ($('caf-champion-card')) renderChampionCard('caf', $('caf-champion-card'));
-      else console.warn('⚠️ caf-champion-card not found in DOM');
-    } catch (e) { console.error('renderChampionCard(caf) error', e); }
-  } else {
-    console.warn('⚠️ renderChampionCard function missing');
-  }
+  try {
+    if ($('caf-champion-card')) renderChampionCard('caf', $('caf-champion-card'));
+    else console.warn('⚠️ caf-champion-card not found in DOM');
+  } catch (e) { console.error('renderChampionCard(caf) error', e); }
+
+  try {
+    if ($('rbc-champion-card')) renderChampionCard('rbc', $('rbc-champion-card'));
+    else console.warn('⚠️ rbc-champion-card not found in DOM');
+  } catch (e) { console.error('renderChampionCard(rbc) error', e); }
+
+  try {
+    if ($('abc-champion-card')) renderChampionCard('abc', $('abc-champion-card'));
+    else console.warn('⚠️ abc-champion-card not found in DOM');
+  } catch (e) { console.error('renderChampionCard(abc) error', e); }
+} else {
+  console.warn('⚠️ renderChampionCard function missing');
+}
 
   // Render rankings (renderRankings expects array + container id)
   if (typeof renderRankings === 'function') {
@@ -1508,12 +1814,22 @@ function renderAll() {
   try { if (typeof renderPlayers === 'function') renderPlayers(); } catch(e){ console.error('renderPlayers error', e); }
   try { if (typeof renderFights === 'function') renderFights(); } catch(e){ console.error('renderFights error', e); }
 
-  // Ensure CAF tab refresh too (safe call)
-  try {
-    if (typeof renderCAFTab === 'function') renderCAFTab();
-  } catch (e) {
-    console.error('renderCAFTab error', e);
-  }
+
+
+
+  // Ensure RBC and ABC tabs refresh too (safe calls)
+try {
+  if (typeof renderRBCTab === 'function') renderRBCTab();
+} catch (e) {
+  console.error('renderRBCTab error', e);
+}
+
+try {
+  if (typeof renderABCTab === 'function') renderABCTab();
+} catch (e) {
+  console.error('renderABCTab error', e);
+}
+
 
   // DEBUG — quick DOM checks to help troubleshoot missing UI
   console.log('🔎 DOM check:', {
@@ -1545,24 +1861,23 @@ function renderAll() {
    🥋 UFL CAF RANKINGS — identical layout & player cards as WORLD
    ================================================================ */
 
-   function renderCAFTab() {
-  const container = document.getElementById("caf-rankings");
-  if (!container) return;
+   
+
+function renderRBCTab() {
+  const { rbc } = computeRankings();
+  const container = document.getElementById("rbc-rankings");
+  if (!container) {
+    console.warn("❌ RBC container not found");
+    return;
+  }
   container.innerHTML = "";
 
-  // Build a CAF-specific ranking list (fallback-safe)
-  const combined = buildCombinedMap();
-  const cafFighters = combined
-    .filter(f => f.isCAFAny || hasCAFFights(f.ids))
-    .map(f => ({
-      ...f,
-      points: calculateRankPoints(f.ids),
-    }))
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 30);
+  if (!rbc || rbc.length === 0) {
+    container.innerHTML = `<div class="text-center text-[var(--muted)] py-4">No EU vs EU fights recorded yet.</div>`;
+    return;
+  }
 
-  // Render CAF fighters using WORLD-style rows
-  cafFighters.forEach((f, i) => {
+  rbc.forEach((f, i) => {
     const row = document.createElement("div");
     row.className = "fighter-row hover:bg-[rgba(255,215,0,0.05)] transition cursor-pointer";
     row.innerHTML = `
@@ -1571,31 +1886,80 @@ function renderAll() {
       <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
       <div class="fighter-points">${f.points}</div>
     `;
-    row.addEventListener("click", () => showFighterCard(f.idMain, true)); // true = CAF mode
+    row.addEventListener("click", () => showFighterCard(f.idMain, "rbc"));
+
     container.appendChild(row);
   });
 }
 
-// Helper: detect CAF fights for combined fighter
-function hasCAFFights(ids) {
-  return fights.some(ft => ft.caf && (ids.includes(ft.fighter1) || ids.includes(ft.fighter2)));
+function renderABCTab() {
+  const { abc } = computeRankings();
+  const container = document.getElementById("abc-rankings");
+  if (!container) {
+    console.warn("❌ ABC container not found");
+    return;
+  }
+  container.innerHTML = "";
+
+  if (!abc || abc.length === 0) {
+    container.innerHTML = `<div class="text-center text-[var(--muted)] py-4">No NA vs NA fights recorded yet.</div>`;
+    return;
+  }
+
+  abc.forEach((f, i) => {
+    const row = document.createElement("div");
+    row.className = "fighter-row hover:bg-[rgba(255,215,0,0.05)] transition cursor-pointer";
+    row.innerHTML = `
+      <div class="rank-num">${i + 1}</div>
+      <div class="fighter-name">${escapeHtml(f.name)}</div>
+      <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
+      <div class="fighter-points">${f.points}</div>
+    `;
+    row.addEventListener("click", () => showFighterCard(f.idMain, "abc"));
+
+    container.appendChild(row);
+  });
 }
 
+
+
 // === Unified Fighter Card Modal (WORLD + CAF compatible) ===
-function showFighterCard(fid, cafMode = false) {
-  const fighter = fighters.find(f => f.id === fid);
+
+
+function showFighterCard(fid, mode = "world") {
+  const fighter = fighters.find(f => f.id === fid || f.idMain === fid);
+
   if (!fighter) {
     alert("Fighter not found.");
     return;
   }
 
-  // Choose fights: CAF only or all
-  const relevantFights = fights
-    .filter(f =>
-      (cafMode ? f.caf : !f.caf) &&
-      (f.fighter1 === fid || f.fighter2 === fid)
-    )
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  // 🧩 Filter fights based on the mode
+  let relevantFights = [];
+  if (mode === "caf") {
+    relevantFights = fights.filter(f => f.caf && (f.fighter1 === fid || f.fighter2 === fid));
+  } else if (mode === "rbc") {
+    // EU vs EU fights only
+    relevantFights = fights.filter(f => {
+      const f1 = fighters.find(x => x.id === f.fighter1);
+      const f2 = fighters.find(x => x.id === f.fighter2);
+      return f1?.region === "EU" && f2?.region === "EU" && (f.fighter1 === fid || f.fighter2 === fid);
+    });
+  } else if (mode === "abc") {
+    // NA vs NA fights only
+    relevantFights = fights.filter(f => {
+      const f1 = fighters.find(x => x.id === f.fighter1);
+      const f2 = fighters.find(x => x.id === f.fighter2);
+      return f1?.region === "NA" && f2?.region === "NA" && (f.fighter1 === fid || f.fighter2 === fid);
+    });
+  } else {
+    // Default: WORLD = all non-CAF fights
+    relevantFights = fights.filter(f => !f.caf && (f.fighter1 === fid || f.fighter2 === fid));
+  }
+
+  // Sort by date (newest first)
+  relevantFights.sort((a, b) => new Date(b.date) - new Date(a.date));
+
 
   // Compute breakdown + badges + streak
   const combined = buildCombinedMap().find(c => c.ids.includes(fid));
@@ -1605,78 +1969,100 @@ function showFighterCard(fid, cafMode = false) {
   // Build modal wrapper
   const modal = document.createElement("div");
   modal.className = "player-card-overlay";
+  
+
   modal.innerHTML = `
-    <div class="frosted rounded-2xl shadow-xl w-full max-w-[800px] relative">
-      <button class="absolute top-3 right-4 text-gray-400 hover:text-red-400 text-2xl font-bold"
-              onclick="document.body.classList.remove('modal-open'); this.closest('.player-card-overlay').remove()">×</button>
-      
-      <div class="text-center mb-4">
-        <h2 class="text-3xl font-bold text-[var(--gold)]">${fighter.name}</h2>
-        <div class="text-sm text-[var(--muted)]">${cafMode ? "UFL CAF Division" : "UFL WORLD Division"}</div>
-      </div>
+  <div class="modal frosted" style="max-width:900px;">
+    <button class="btn btn-danger" style="position:absolute;top:10px;right:14px;font-size:16px;"
+            onclick="document.body.classList.remove('modal-open'); this.closest('.player-card-overlay').remove()">✖</button>
 
-      <div class="flex justify-around bg-black bg-opacity-40 py-3 rounded-xl mb-4">
-        <div class="text-center">
-          <div class="text-lg font-bold">${cafMode ? fighter.cafWins || 0 : fighter.wins || 0}</div>
-          <div class="text-xs text-[var(--muted)]">Wins</div>
-        </div>
-        <div class="text-center">
-          <div class="text-lg font-bold">${cafMode ? fighter.cafLosses || 0 : fighter.losses || 0}</div>
-          <div class="text-xs text-[var(--muted)]">Losses</div>
-        </div>
-        <div class="text-center">
-          <div class="text-lg font-bold">${cafMode ? fighter.cafDraws || 0 : fighter.draws || 0}</div>
-          <div class="text-xs text-[var(--muted)]">Draws</div>
-        </div>
-        <div class="text-center">
-          <div class="text-lg font-bold">${cafMode ? fighter.cafKoWins || 0 : fighter.koWins || 0}</div>
-          <div class="text-xs text-[var(--muted)]">KO Wins</div>
-        </div>
-      </div>
+    <div style="text-align:center;margin-bottom:12px;">
+      <h2 style="font-family:Orbitron;font-size:28px;color:var(--gold);margin:0;">${fighter.name}</h2>
+     
+      <div class="small-muted">${
+  mode === "caf"
+    ? "UFL CAF Division"
+    : mode === "rbc"
+    ? "UFL RBC Division (EU vs EU)"
+    : mode === "abc"
+    ? "UFL ABC Division (NA vs NA)"
+    : "UFL WORLD Division"
+}</div>
 
-      <!-- Badges -->
-      <div class="mb-4 text-center">
-        ${badges.map(b => `<span class="badge" title="${b.desc}">${b.icon}</span>`).join("") || "<span class='text-[var(--muted)] text-sm'>No badges yet</span>"}
-      </div>
 
-      <!-- Breakdown -->
-      <div class="breakdown">
-        <div><strong>Base:</strong> ${breakdown.base.toFixed(1)}</div>
-        <div><strong>Finish Bonus:</strong> ${breakdown.finish.toFixed(1)}</div>
-        <div><strong>Opponent:</strong> ${breakdown.opponent.toFixed(1)}</div>
-        <div><strong>Recency:</strong> ${breakdown.recency.toFixed(1)}</div>
-        <div><strong>Streak:</strong> ${breakdown.streak.toFixed(1)}</div>
-        <div><strong>Modifiers:</strong> ${breakdown.modifiers.toFixed(1)}</div>
-        <div class="mt-2 text-lg"><strong>Total:</strong> ${breakdown.total}</div>
-      </div>
+    </div>
 
-      <!-- Fight History -->
-      <h3 class="text-[var(--gold)] text-lg mt-6 mb-2 text-center">Fight History</h3>
-      <div id="fight-history" class="max-h-[400px] overflow-y-auto">
-        ${
-          relevantFights.length === 0
-            ? `<div class="text-center text-[var(--muted)] py-4">No ${cafMode ? "CAF" : "WORLD"} fights recorded.</div>`
-            : relevantFights.map(f => {
-                const f1 = fighters.find(x => x.id === f.fighter1)?.name || "Unknown";
-                const f2 = fighters.find(x => x.id === f.fighter2)?.name || "Unknown";
-                const isDraw = f.winner === "0" || f.winner === "draw";
-                const winnerName = isDraw ? "Draw" : fighters.find(x => x.id === f.winner)?.name || "Unknown";
-                const method = f.method || "—";
-                const date = formatDateShort(f.date);
-                const result = isDraw ? "Draw" : `${winnerName} won`;
-                return `
-                  <div class="p-2 border-b border-gray-700 text-sm flex justify-between items-center">
-                    <div class="text-left">
-                      <div class="font-semibold">${f1} vs ${f2}</div>
-                      <div class="text-[var(--muted)]">${method} • ${result}</div>
-                    </div>
-                    <div class="text-[var(--muted)] text-xs">${date}</div>
-                  </div>`;
-              }).join("")
-        }
+    <div class="players-header" style="margin-bottom:10px;">
+      <div class="players-columns">
+        <div class="players-column-left">
+          Record:
+          <strong>${cafMode ? fighter.cafWins || 0 : fighter.wins || 0}-${cafMode ? fighter.cafLosses || 0 : fighter.losses || 0}-${cafMode ? fighter.cafDraws || 0 : fighter.draws || 0}</strong>
+          (${cafMode ? fighter.cafKoWins || 0 : fighter.koWins || 0} KO)
+        </div>
       </div>
     </div>
-  `;
+
+    <div style="text-align:center;margin-bottom:10px;">
+      ${badges.map(b => `<span class="badge" title="${b.desc}">${b.icon}</span>`).join("") || "<span class='text-[var(--muted)] text-sm'>No badges yet</span>"}
+    </div>
+
+    <div class="breakdown">
+      <div><strong>Base:</strong> ${breakdown.base.toFixed(1)}</div>
+      <div><strong>Finish Bonus:</strong> ${breakdown.finish.toFixed(1)}</div>
+      <div><strong>Opponent:</strong> ${breakdown.opponent.toFixed(1)}</div>
+      <div><strong>Recency:</strong> ${breakdown.recency.toFixed(1)}</div>
+      <div><strong>Streak:</strong> ${breakdown.streak.toFixed(1)}</div>
+      <div><strong>Modifiers:</strong> ${breakdown.modifiers.toFixed(1)}</div>
+      <div class="mt-2 text-lg"><strong>Total:</strong> ${breakdown.total}</div>
+    </div>
+
+    <h3 style="color:var(--gold);font-family:Orbitron;margin-top:14px;">Fight History</h3>
+    <div id="fight-history" style="max-height:400px;overflow-y:auto;">
+      ${
+        relevantFights.length === 0
+          ? `<div class="text-center text-[var(--muted)] py-4">No ${cafMode ? "CAF" : "WORLD"} fights recorded.</div>`
+          : relevantFights.map(f => {
+              const f1 = fighters.find(x => x.id === f.fighter1)?.name || "Unknown";
+              const f2 = fighters.find(x => x.id === f.fighter2)?.name || "Unknown";
+              const isDraw = f.winner === "0" || f.winner === "draw";
+              const winnerName = isDraw ? "Draw" : fighters.find(x => x.id === f.winner)?.name || "Unknown";
+              const method = f.method || "—";
+              const date = formatDateShort(f.date);
+              const result = isDraw ? "Draw" : `${winnerName} won`;
+              return `
+                <div class="fights-row">
+                  <div>${date}</div>
+                  <div>${f1} vs ${f2}</div>
+                  <div>${method}</div>
+                  <div>${result}</div>
+                </div>`;
+            }).join("")
+      }
+    </div>
+  </div>
+`;
+
+// ✅ Return all divisions
+return { world, caf, rbc, abc };
+
+// 🏴‍☠️ RBC (EU) and 🦅 ABC (NA) region-locked rankings
+const rbc = activeOnly
+  .filter(f => {
+    const fighter = fighters.find(x => x.id === f.idMain);
+    return fighter?.region === "EU";
+  })
+  .slice(0, 30);
+
+const abc = activeOnly
+  .filter(f => {
+    const fighter = fighters.find(x => x.id === f.idMain);
+    return fighter?.region === "NA";
+  })
+  .slice(0, 30);
+
+
+
+
 
   document.body.classList.add("modal-open");
   document.body.appendChild(modal);
@@ -1755,13 +2141,40 @@ function refreshRankings() {
      ============================================================ */
   
   /* Floating Champion Card with gold crown icon */
-  function renderChampionCard(type, container) {
-  const field = type === 'world' ? 'uflWorld' : 'uflCAF';
+function renderChampionCard(type, container) {
+  let field, title, defenses, lastDefense;
+
+  switch (type) {
+    case 'world':
+      field = 'uflWorld';
+      title = 'UFL WORLD CHAMPION';
+      defenses = champions.uflWorldDefenses || 0;
+      lastDefense = champions.uflWorldLastDefense;
+      break;
+    case 'rbc':
+      field = 'rbc';
+      title = 'RBC CHAMPION';
+      defenses = champions.rbcDefenses || 0;
+      lastDefense = champions.rbcLastDefense;
+      break;
+    case 'abc':
+      field = 'abc';
+      title = 'ABC CHAMPION';
+      defenses = champions.abcDefenses || 0;
+      lastDefense = champions.abcLastDefense;
+      break;
+    case 'caf':
+      field = 'uflCAF';
+      title = 'UFL CAF CHAMPION';
+      defenses = champions.uflCAFDefenses || 0;
+      lastDefense = champions.uflCAFLastDefense;
+      break;
+    default:
+      return;
+  }
+
   const champId = champions?.[field];
   const champData = fighters.find(f => f.id === champId);
-  const title = type === 'world' ? 'UFL WORLD CHAMPION' : 'UFL CAF CHAMPION';
-  const defenses = type === 'world' ? (champions.uflWorldDefenses || 0) : (champions.uflCAFDefenses || 0);
-  const lastDefense = type === 'world' ? champions.uflWorldLastDefense : champions.uflCAFLastDefense;
 
   // 🧮 Get combined record across platforms
   let recordText = '';
@@ -1774,6 +2187,7 @@ function refreshRankings() {
     recordText = `${wins}-${losses}-${draws}`;
   }
 
+  // 🪄 Render the champion card
   container.innerHTML = `
     <div class="champion-card floating-card">
       <div class="champion-header">
@@ -1806,10 +2220,21 @@ function renderRankings(list, containerId) {
   if (!container) return;
   container.innerHTML = '';
 
-  list.forEach((f, i) => {
+  // try to locate a search input that follows the naming convention: "<containerId-without-suffix>-search"
+  // e.g. "world-rankings" -> "world-search"
+  const searchInputId = containerId.replace('-rankings', '-search');
+  const query = (document.getElementById(searchInputId)?.value || '').toLowerCase();
+
+  // apply optional query filter (if query present)
+  const listToRender = query
+    ? list.filter(f => (f.name || '').toLowerCase().includes(query))
+    : list;
+
+  // render the filtered list (keeps existing numbering)
+  listToRender.forEach((f, i) => {
     const rankNum = i + 1;
     const champIcons = getChampionIcons(f);
-    const points = f.points ?? 0; // ✅ safe fallback for undefined values
+    const points = f.points ?? 0; // safe fallback
 
     container.insertAdjacentHTML('beforeend', `
       <div class="fighter-row" onclick="openFighterModal('${f.idMain}')">
@@ -1819,6 +2244,11 @@ function renderRankings(list, containerId) {
       </div>
     `);
   });
+
+  // show empty message if nothing matched
+  if (listToRender.length === 0) {
+    container.innerHTML = `<div class="text-center text-[var(--muted)] py-4">No fighters match your search.</div>`;
+  }
 }
 
   
@@ -1874,30 +2304,31 @@ function renderPlayers() {
   // Sort by total points descending
   
 // 🧮 Sort by points, then head-to-head, then recent activity
+// 🧮 Sort by points, then head-to-head, then recent activity
 const list = combinedList.sort((a, b) => {
   if (b.points !== a.points) return b.points - a.points;
 
   // 🥊 Head-to-head tiebreaker
   const h2h = fights.filter(
-    f =>
-      (a.ids.includes(f.fighter1) && b.ids.includes(f.fighter2)) ||
-      (a.ids.includes(f.fighter2) && b.ids.includes(f.fighter1))
+    ft =>
+      (a.ids.includes(ft.fighter1) && b.ids.includes(ft.fighter2)) ||
+      (a.ids.includes(ft.fighter2) && b.ids.includes(ft.fighter1))
   );
 
   if (h2h.length) {
-    const aWins = h2h.filter(f => a.ids.includes(f.winner)).length;
-    const bWins = h2h.filter(f => b.ids.includes(f.winner)).length;
+    const aWins = h2h.filter(ft => a.ids.includes(ft.winner)).length;
+    const bWins = h2h.filter(ft => b.ids.includes(ft.winner)).length;
     if (aWins !== bWins) return bWins - aWins;
   }
 
   // 🕓 Recent activity tiebreaker
-  const getLastFightDate = fighter =>
-    Math.max(
-      0,
-      ...fights
-        .filter(ft => fighter.ids.includes(ft.fighter1) || fighter.ids.includes(ft.fighter2))
-        .map(ft => new Date(ft.date).getTime())
-    );
+  const getLastFightDate = fighter => {
+    const times = fights
+      .filter(ft => fighter.ids.includes(ft.fighter1) || fighter.ids.includes(ft.fighter2))
+      .map(ft => new Date(ft.date).getTime())
+      .filter(Boolean); // remove invalid dates
+    return times.length ? Math.max(...times) : 0;
+  };
 
   const aLast = getLastFightDate(a);
   const bLast = getLastFightDate(b);
@@ -1905,6 +2336,7 @@ const list = combinedList.sort((a, b) => {
 
   return 0;
 });
+
 
   const container = $('players-list');
   if (!container) return;
@@ -2084,16 +2516,43 @@ function showBadgeDesc(desc) { const existing = document.getElementById('badge-d
   
   /* Simple tab switcher (ensures one visible at all times) */
   function switchTab(tab) {
-    const tabs = ['home','world','caf','players','fights','social','admin'];
-    tabs.forEach(t=>{
-      const el = document.getElementById(t+'-tab');
-      const btn = document.getElementById('btn-'+t);
-      if(el) el.classList.toggle('hidden', t!==tab);
-      if(btn) btn.classList.toggle('tab-active', t===tab);
-    });
-    renderAll();
+  const tabs = ['home', 'world', 'rbc', 'abc', 'players', 'fights', 'admin'];
+
+  tabs.forEach(t => {
+    const el = document.getElementById(t + '-tab');
+    const btn = document.getElementById('btn-' + t);
+
+    if (el) {
+      el.classList.toggle('hidden', t !== tab);
+    }
+    if (btn) {
+      btn.classList.toggle('tab-active', t === tab);
+    }
+  });
+
+  // 🔧 Render only the active tab’s content
+  switch (tab) {
+    case 'players':
+      renderPlayers();
+      break;
+    case 'fights':
+      renderFights();
+      break;
+    case 'admin':
+      renderAdmin();
+      break;
+    default:
+      renderAll(); // For home, world, rbc, abc, caf
+      break;
   }
-  document.addEventListener('DOMContentLoaded',()=>{ switchTab('home'); });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  switchTab('home');
+});
+
 
 /* ===============================
    🧩 PLAYER CARD OVERLAY SYSTEM
@@ -2619,19 +3078,16 @@ await recomputeAllFighterStats();
   }
   
   /* Map title string to settings field */
-  function mapTitleToField(title){
-    switch(title){
-      case 'UFL World Champion': return 'uflWorld';
-      case 'UFL CAF Champion': return 'uflCAF';
-      case 'UFL PC Champion': return 'uflPC';
-      case 'UFL PS5 Champion': return 'uflPS5';
-      case 'UFL Xbox Champion': return 'uflXbox';
-      case 'RBC PC Champion': return 'rbcPC';
-      case 'RBC PS5 Champion': return 'rbcPS5';
-      case 'RBC Xbox Champion': return 'rbcXbox';
-      default: return title.replace(/\s+/g,'').toLowerCase();
-    }
+  function mapTitleToField(title) {
+  switch (title) {
+    case 'UFL World Champion': return 'uflWorld';
+    case 'RBC Champion': return 'rbc';
+    case 'ABC Champion': return 'abc';
+    case 'UFL CAF Champion': return 'uflCAF';
+    default: return title.replace(/\s+/g, '').toLowerCase();
   }
+}
+
   
   /* Inject admin social controls (YouTube save UI) */
   function injectAdminSocialControls(){
