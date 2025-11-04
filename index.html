@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>UFL RANKINGS</title>
+<title>UFL SEASON 3</title>
 
 
 
@@ -684,8 +684,10 @@ html, body {
 
       <ul style="list-style:none;padding:0;">
         <br>
-          <li><b>BONUS:</b>EARN BY GETTING FIGHT OF THE NIGHT</li>
-          <li><b>ABC:</b> NA PLAYERS</li>
+          <li><b>BONUS:</b> EARN BY GETTING FIGHT OF THE NIGHT</li>
+          <li><b>GLOBAL:</b> FIGHT MULTIPLE TIMES ACROSS REGION</li>
+          <li><b>RIVALRY:</b> FIGHTERS HAVE FACED EACH OTHER 3+ TIMES</li>
+          
     
           <br> </br>     
 
@@ -1380,8 +1382,74 @@ if (fotnCount > 0) {
 }
 
 
+// 🌍 GLOBAL BADGE — Must have at least 3 wins vs EU and 3 wins vs NA fighters
+  try {
+    // count wins vs EU opponents
+    const winsVsEU = (Array.isArray(fights) ? fights : []).filter(ft => {
+      // did this fight have a winner that's one of the combined fighter ids?
+      if (!ft.winner || !ids.includes(ft.winner)) return false;
+
+      // was the combined fighter involved in this fight?
+      if (!(ids.includes(ft.fighter1) || ids.includes(ft.fighter2))) return false;
+
+      // determine opponent id (the other fighter in the fight)
+      const oppId = ids.includes(ft.fighter1) ? ft.fighter2 : ft.fighter1;
+      const opp = fighters.find(x => x.id === oppId);
+      return opp?.region === 'EU';
+    }).length;
+
+    // count wins vs NA opponents
+    const winsVsNA = (Array.isArray(fights) ? fights : []).filter(ft => {
+      if (!ft.winner || !ids.includes(ft.winner)) return false;
+      if (!(ids.includes(ft.fighter1) || ids.includes(ft.fighter2))) return false;
+      const oppId = ids.includes(ft.fighter1) ? ft.fighter2 : ft.fighter1;
+      const opp = fighters.find(x => x.id === oppId);
+      return opp?.region === 'NA';
+    }).length;
+
+    if (winsVsEU >= 3 && winsVsNA >= 3) {
+      badges.push({
+        key: 'Global',
+        icon: '🌍',
+        desc: `Global — ${winsVsEU} wins vs EU, ${winsVsNA} wins vs NA opponents`
+      });
+    }
+  } catch (err) {
+    console.error("GLOBAL badge check error:", err);
+  }
 
 
+// 🤜 RIVALRY — Faced the same opponent 3 or more times
+try {
+  const matchCounts = {};
+
+  // Collect all fights the fighter participated in
+  (Array.isArray(fights) ? fights : []).forEach(ft => {
+    if (!(ids.includes(ft.fighter1) || ids.includes(ft.fighter2))) return;
+
+    const oppId = ids.includes(ft.fighter1) ? ft.fighter2 : ft.fighter1;
+    if (!oppId) return;
+    matchCounts[oppId] = (matchCounts[oppId] || 0) + 1;
+  });
+
+  // Find opponents fought 3+ times
+  const rivalIds = Object.keys(matchCounts).filter(id => matchCounts[id] >= 3);
+
+  if (rivalIds.length > 0) {
+  rivalIds.forEach(rid => {
+    const rival = fighters.find(x => x.id === rid);
+    const rivalName = rival?.name || "Unknown";
+    const fightsCount = matchCounts[rid];
+    badges.push({
+      key: `Rivalry-${rivalName}`,
+      icon: "🤜",
+      desc: `Rivalry — Faced ${rivalName} ${fightsCount}×`
+    });
+  });
+}
+} catch (err) {
+  console.error("RIVALRY badge error:", err);
+}
 
 
   // Order badges logically by importance
@@ -1390,12 +1458,19 @@ if (fotnCount > 0) {
   'Former Champion',
   'Icon',
   'Winning Streak',
+  'Global',
   'KO Artist',
+  'Rivalry',
   'Workhorse',
   'Rising Star',
   'Fight of the Night'
 ];
-  badges.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+badges.sort((a, b) => {
+  // normalize keys so "Rivalry-John Doe" counts as "Rivalry"
+  const keyA = a.key.startsWith('Rivalry') ? 'Rivalry' : a.key;
+  const keyB = b.key.startsWith('Rivalry') ? 'Rivalry' : b.key;
+  return order.indexOf(keyA) - order.indexOf(keyB);
+});
 
   return badges;
 }
@@ -1908,7 +1983,7 @@ function renderRBCTab() {
       <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
       <div class="fighter-points">${f.points}</div>
     `;
-    row.addEventListener("click", () => showFighterCard(f.idMain, "rbc"));
+    row.addEventListener("click", () => openFighterModal(f.idMain));
 
     container.appendChild(row);
   });
@@ -1937,7 +2012,7 @@ function renderABCTab() {
       <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
       <div class="fighter-points">${f.points}</div>
     `;
-    row.addEventListener("click", () => showFighterCard(f.idMain, "abc"));
+    row.addEventListener("click", () => openFighterModal(f.idMain));
 
     container.appendChild(row);
   });
@@ -2127,7 +2202,7 @@ async function recomputeAllFighterStats() {
         else stats[loser].losses++;
       }
 
-      if ((ft.method || '').toLowerCase().includes('ko')) {
+      if ((ft.method || '').toLowerCase().includes('KO/TKO')) {
         if (stats[winner]) {
           if (isCAF) stats[winner].cafKoWins++;
           else stats[winner].koWins++;
@@ -2938,7 +3013,7 @@ function adminAddFighter(){
         else stats[loser].losses++;
       }
 
-      if ((ft.method || '').toLowerCase().includes('ko')) {
+      if ((ft.method || '').toLowerCase().includes('KO/TKO')) {
         if (stats[winner]) {
           if (isCAF) stats[winner].cafKoWins++;
           else stats[winner].koWins++;
