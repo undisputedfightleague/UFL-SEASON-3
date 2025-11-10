@@ -2436,8 +2436,20 @@ function renderPlayers() {
 const list = combinedList.sort((a, b) => {
   if (b.points !== a.points) return b.points - a.points;
 
-  // 🥊 Head-to-head tiebreaker
-  const h2h = fights.filter(
+
+
+  // 🕓 Recent activity tiebreaker
+  const getLastFightDate = fighter => {
+    const times = fights
+      .filter(ft => fighter.ids.includes(ft.fighter1) || fighter.ids.includes(ft.fighter2))
+      .map(ft => new Date(ft.date).getTime())
+      .filter(Boolean); // remove invalid dates
+    return times.length ? Math.max(...times) : 0;
+  };
+
+
+    // 🥊 Head-to-head tiebreaker
+    const h2h = fights.filter(
     ft =>
       (a.ids.includes(ft.fighter1) && b.ids.includes(ft.fighter2)) ||
       (a.ids.includes(ft.fighter2) && b.ids.includes(ft.fighter1))
@@ -2448,15 +2460,6 @@ const list = combinedList.sort((a, b) => {
     const bWins = h2h.filter(ft => b.ids.includes(ft.winner)).length;
     if (aWins !== bWins) return bWins - aWins;
   }
-
-  // 🕓 Recent activity tiebreaker
-  const getLastFightDate = fighter => {
-    const times = fights
-      .filter(ft => fighter.ids.includes(ft.fighter1) || fighter.ids.includes(ft.fighter2))
-      .map(ft => new Date(ft.date).getTime())
-      .filter(Boolean); // remove invalid dates
-    return times.length ? Math.max(...times) : 0;
-  };
 
   const aLast = getLastFightDate(a);
   const bLast = getLastFightDate(b);
