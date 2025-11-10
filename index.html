@@ -1725,13 +1725,40 @@ function computeRankings() {
   const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
 
   // 🚫 Exclude retired fighters and champions
-  const activeOnly = combined.filter(f => {
-    const main = fighters.find(x => x.id === f.idMain);
-    const isChampion =
-      (champions?.uflWorld && f.ids.includes(champions.uflWorld)) ||
-      (champions?.uflCAF && f.ids.includes(champions.uflCAF));
-    return !main?.retired && !isChampion;
-  });
+  // 🚫 Exclude retired fighters and region-specific champions
+const activeOnly = combined.filter(f => {
+  const main = fighters.find(x => x.id === f.idMain);
+
+  // Determine which tab we’re rendering from the global "currentTab" variable
+  // (this variable is set by your switchTab('world'/'rbc'/'abc') function)
+  const tab = window.currentTab || "world";
+  let isChampion = false;
+
+  // 🥇 WORLD TAB — exclude only UFL + CAF champs
+  if (tab === "world") {
+    isChampion =
+      (champions?.uflWorld && f.ids.includes(champions.uflWorld)) ||
+      (champions?.uflCAF && f.ids.includes(champions.uflCAF));
+  }
+
+  // 🏴 RBC TAB — exclude RBC champs only
+  else if (tab === "rbc") {
+    isChampion =
+      (champions?.rbcPC && f.ids.includes(champions.rbcPC)) ||
+      (champions?.rbcPS5 && f.ids.includes(champions.rbcPS5)) ||
+      (champions?.rbcXbox && f.ids.includes(champions.rbcXbox));
+  }
+
+  // 🦅 ABC TAB — exclude ABC champs only
+  else if (tab === "abc") {
+    isChampion =
+      (champions?.abcPC && f.ids.includes(champions.abcPC)) ||
+      (champions?.abcPS5 && f.ids.includes(champions.abcPS5)) ||
+      (champions?.abcXbox && f.ids.includes(champions.abcXbox));
+  }
+
+  return !main?.retired && !isChampion;
+});
 
 // --- 1) Compute base points for WORLD/CAF with correct CAF filtering ---
 activeOnly.forEach(f => {
@@ -1854,6 +1881,8 @@ function renderAll() {
   const caf   = rankingResult?.caf   || [];
   const rbc   = rankingResult?.rbc   || [];
   const abc   = rankingResult?.abc   || [];
+
+  
 
   // DEBUG — inspect what computeRankings returned
   console.log('🔎 renderAll: computeRankings result:', {
@@ -2150,14 +2179,14 @@ const rbc = activeOnly
     const fighter = fighters.find(x => x.id === f.idMain);
     return fighter?.region === "EU";
   })
-  .slice(0, 30);
+  .slice(0, 15);
 
 const abc = activeOnly
   .filter(f => {
     const fighter = fighters.find(x => x.id === f.idMain);
     return fighter?.region === "NA";
   })
-  .slice(0, 30);
+  .slice(0, 15);
 
 
 
