@@ -1721,7 +1721,7 @@ function countCAFFights() {
   console.log(`🥋 CAF fights detected: ${totalCAF}`);
 }
 
-function computeRankings() {
+ function computeRankings(tab = window.currentTab || "world") {
   const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
 
   // 🚫 Exclude retired fighters and champions
@@ -1731,7 +1731,7 @@ const activeOnly = combined.filter(f => {
 
   // Determine which tab we’re rendering from the global "currentTab" variable
   // (this variable is set by your switchTab('world'/'rbc'/'abc') function)
-  const tab = window.currentTab || "world";
+ // const tab = window.currentTab || "world";
   let isChampion = false;
 
   // 🥇 WORLD TAB — exclude only UFL + CAF champs
@@ -1741,21 +1741,22 @@ const activeOnly = combined.filter(f => {
       (champions?.uflCAF && f.ids.includes(champions.uflCAF));
   }
 
-  // 🏴 RBC TAB — exclude RBC champs only
-  else if (tab === "rbc") {
-    isChampion =
-      (champions?.rbcPC && f.ids.includes(champions.rbcPC)) ||
-      (champions?.rbcPS5 && f.ids.includes(champions.rbcPS5)) ||
-      (champions?.rbcXbox && f.ids.includes(champions.rbcXbox));
-  }
+ // Exclude region champions from their own tabs
+// Exclude region champions from their own tabs
+if (tab === "rbc") {
+  if (champions?.rbc && f.ids.includes(champions.rbc)) {
+    isChampion = true;
+  }
+}
 
-  // 🦅 ABC TAB — exclude ABC champs only
-  else if (tab === "abc") {
-    isChampion =
-      (champions?.abcPC && f.ids.includes(champions.abcPC)) ||
-      (champions?.abcPS5 && f.ids.includes(champions.abcPS5)) ||
-      (champions?.abcXbox && f.ids.includes(champions.abcXbox));
-  }
+if (tab === "abc") {
+  if (champions?.abc && f.ids.includes(champions.abc)) {
+    isChampion = true;
+  }
+}
+
+
+
 
   return !main?.retired && !isChampion;
 });
@@ -1990,7 +1991,7 @@ try {
    
 
 function renderRBCTab() {
-  const { rbc } = computeRankings();
+  const { rbc } = computeRankings("rbc");
   const container = document.getElementById("rbc-rankings");
   if (!container) {
     console.warn("❌ RBC container not found");
@@ -2010,7 +2011,7 @@ function renderRBCTab() {
       <div class="rank-num">${i + 1}</div>
       <div class="fighter-name">${escapeHtml(f.name)}</div>
       <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
-      <div class="fighter-points">${f.points}</div>
+    
     `;
     row.addEventListener("click", () => openFighterModal(f.idMain));
 
@@ -2019,7 +2020,7 @@ function renderRBCTab() {
 }
 
 function renderABCTab() {
-  const { abc } = computeRankings();
+  const { abc } = computeRankings("abc");
   const container = document.getElementById("abc-rankings");
   if (!container) {
     console.warn("❌ ABC container not found");
@@ -2039,7 +2040,7 @@ function renderABCTab() {
       <div class="rank-num">${i + 1}</div>
       <div class="fighter-name">${escapeHtml(f.name)}</div>
       <div class="fighter-record">${f.wins}-${f.losses}-${f.draws}</div>
-      <div class="fighter-points">${f.points}</div>
+      
     `;
     row.addEventListener("click", () => openFighterModal(f.idMain));
 
