@@ -1633,7 +1633,7 @@ if (isWin && f.method && /ko|tko/i.test(f.method)) {
   const totalFights = oppCombined.wins + oppCombined.losses + oppCombined.draws;
 
   // Require at least 3 fights before opponent quality counts
-  if (totalFights >= 3) {
+  if (totalFights >= 6) {
     const oppWinPct = oppCombined.wins / totalFights;
     oppStrengthBonus = (oppWinPct - 0.50) * 3;
 
