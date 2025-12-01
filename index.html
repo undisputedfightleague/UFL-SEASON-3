@@ -1617,16 +1617,21 @@ if (isWin && f.method && /ko|tko/i.test(f.method)) {
     let oppStrengthBonus = 0;
 
     if (oppCombined) {
-      const totalFights = oppCombined.wins + oppCombined.losses + oppCombined.draws;
-      if (totalFights > 0) {
-        const oppWinPct = oppCombined.wins / totalFights;
-        oppStrengthBonus = (oppWinPct - 0.5) * 3; // slightly stronger weighting
-        if (f.winner === mainFighter && oppStrengthBonus < 0) oppStrengthBonus = 0; // never penalize win
-        oppStrengthBonus = Math.max(-2, Math.min(oppStrengthBonus, 2)); // cap
-        base += oppStrengthBonus;
-        breakdown.opponent += oppStrengthBonus;
-      }
-    }
+  const totalFights = oppCombined.wins + oppCombined.losses + oppCombined.draws;
+
+  // Require at least 3 fights before opponent quality counts
+  if (totalFights >= 3) {
+    const oppWinPct = oppCombined.wins / totalFights;
+    oppStrengthBonus = (oppWinPct - 0.50) * 3;
+
+    // Never penalize beating someone
+    if (isWin && oppStrengthBonus < 0) oppStrengthBonus = 0;
+
+    oppStrengthBonus = Math.max(-2, Math.min(oppStrengthBonus, 2));
+    base += oppStrengthBonus;
+    breakdown.opponent += oppStrengthBonus;
+  }
+}
     // 🔝 Contender Fight Bonus (Top 10 vs Top 10)
 // 🔝 TURN BACK ON AFTER A FEW WEEKS
 // if (f1Rank <= 10 || f2Rank <= 10) {
