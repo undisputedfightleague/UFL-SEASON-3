@@ -675,7 +675,7 @@ html, body {
   <iframe 
 width="300" 
 height="180" 
-src="https://www.youtube.com/embed/aKYgOc3RPcI?si=zAqNNUO4vNX6Au9C"
+src="https://www.youtube.com/embed/_TntqL0PXy8?si=RPXMrCbhzKTgGkQN"
 frameborder="0" 
 allowfullscreen>
 </iframe>
@@ -846,6 +846,18 @@ allowfullscreen>
         </div>
       </div>
 
+      <!-- 🥊 MATCHMAKING ASSISTANT -->
+<div class="frosted" style="margin-top:16px;">
+  <h3 style="margin:0 0 8px 0;">Matchmaking Assistant</h3>
+  <div class="small-muted">Select a fighter to get 3 suggested fair-match opponents.</div>
+
+  <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+    <select id="matchmaking-select" style="flex:1; padding:8px; border-radius:6px;"></select>
+    <button class="btn btn-primary" onclick="runMatchmaking()">Suggest</button>
+  </div>
+
+  <div id="matchmaking-results" style="margin-top:12px;"></div>
+</div>
 
         <!-- 🥊 ADD FIGHT SECTION -->
         <div id="add-fight-section" class="admin-section">
@@ -1130,6 +1142,7 @@ allowfullscreen>
   });
   // update any UI selects / lists that depend on fighters
   populateEditFightSelects?.();
+  populateMatchmakingSelect?.();
   populateChampionTitleSelects?.();
   populateAdminFighters?.();
   renderAll?.();
@@ -1703,6 +1716,70 @@ if (returnBreakdown) {
 
 return breakdown.total;
 
+}
+
+function lastOpponents(fighterId, count = 5) {
+  return fights
+    .filter(f => f.fighter1 === fighterId || f.fighter2 === fighterId)
+    .slice(0, count) // fights are already sorted DESC by Firestore listener
+    .map(f => f.fighter1 === fighterId ? f.fighter2 : f.fighter1);
+}
+
+function suggestMatchups(fighterId) {
+  const fighter = fighters.find(f => f.id === fighterId);
+  if (!fighter) return [];
+
+  const region = fighter.region;
+  const fighterPoints = calculateRankPoints([fighterId]);
+
+  // 1. Same region pool
+  let pool = fighters.filter(f => f.region === region && f.id !== fighterId);
+
+  // 2. Remove recent opponents
+  const prev = lastOpponents(fighterId, 5);
+  pool = pool.filter(f => !prev.includes(f.id));
+
+  // 3. Score by point proximity
+  const scored = pool.map(opp => {
+    const oppPts = calculateRankPoints([opp.id]);
+    return {
+      id: opp.id,
+      name: opp.name,
+      region: opp.region,
+      points: oppPts,
+      diff: Math.abs(oppPts - fighterPoints)
+    };
+  });
+
+  // 4. Sort by closest match
+  scored.sort((a,b)=> a.diff - b.diff);
+
+  return scored.slice(0, 3);
+}
+
+function runMatchmaking() {
+  const select = document.getElementById("matchmaking-select");
+  const resultsDiv = document.getElementById("matchmaking-results");
+
+  const fighterId = select?.value;
+  if (!fighterId) {
+    resultsDiv.innerHTML = "<div>Select a fighter first.</div>";
+    return;
+  }
+
+  const suggestions = suggestMatchups(fighterId);
+
+  if (!suggestions || suggestions.length === 0) {
+    resultsDiv.innerHTML = "<div>No valid matchups found.</div>";
+    return;
+  }
+
+  resultsDiv.innerHTML = suggestions.map(s => `
+    <div style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.1);">
+      <strong>${s.name}</strong>
+      <div class="small-muted">Points: ${s.points}</div>
+    </div>
+  `).join("");
 }
 
 // ---------------------------------------------
@@ -2429,6 +2506,27 @@ function renderPlayers() {
     f.points = calculateRankPoints(f.ids);
   });
 
+
+  function runMatchmaking() {
+  const fId = $("matchmaking-select").value;
+  const resultsDiv = $("matchmaking-results");
+
+  const matches = suggestMatchups(fId);
+  if (!matches.length) {
+    resultsDiv.innerHTML = `<div class="small-muted">No valid opponents found.</div>`;
+    return;
+  }
+
+  resultsDiv.innerHTML = matches.map(m => `
+    <div class="frosted" style="padding:10px;margin-top:8px;">
+      <div><strong>${escapeHtml(m.name)}</strong> (${m.region})</div>
+      <div class="small-muted">Points: ${m.points}</div>
+      <div class="small-muted">Difference: ${m.diff}</div>
+    </div>
+  `).join("");
+}
+
+
   // Sort by total points descending
   
 // 🧮 Sort by points, then head-to-head, then recent activity
@@ -3013,6 +3111,16 @@ function adminAddFighter(){
   }).catch(e=>{ console.error(e); alert('Failed to add fighter'); });
 }
 
+
+function populateMatchmakingSelect() {
+  const sel = $("matchmaking-select");
+  if (!sel || !fighters.length) return;
+
+  sel.innerHTML = fighters
+    .sort((a,b)=> a.name.localeCompare(b.name))
+    .map(f => `<option value="${f.id}">${escapeHtml(f.name)} (${f.region})</option>`)
+    .join("");
+}
   
   /* Recompute ALL fighter stats from fights (safe canonical source of truth) */
   async function recomputeAllFighterStats() {
