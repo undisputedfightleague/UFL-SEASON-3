@@ -1616,12 +1616,12 @@ if (isWin && f.method && /ko|tko/i.test(f.method)) {
 
 
     // 🧩 Rank differential adjustment
-    if (isWin && selfRank > oppRank) {
-      bonus += Math.min(rankDiff * 0.05, 1);
-    } else if (isLoss && selfRank < oppRank) {
-      bonus -= Math.min(rankDiff * 0.025, 0.5);
-    }
-    breakdown.modifiers += bonus;
+   // if (isWin && selfRank > oppRank) {
+    //  bonus += Math.min(rankDiff * 0.025, 0.5);
+  //  } else if (isLoss && selfRank < oppRank) {
+  //    bonus -= Math.min(rankDiff * 0.025, 0.5);
+  //  }
+  //  breakdown.modifiers += bonus;
 
     // 💪 Opponent Strength (combined record)
     const mainFighter = fighterIds[0];
@@ -2142,73 +2142,58 @@ function showFighterCard(fid, mode = "world") {
   if (mode === "caf") {
     relevantFights = fights.filter(f => f.caf && (f.fighter1 === fid || f.fighter2 === fid));
   } else if (mode === "rbc") {
-    // EU vs EU fights only
     relevantFights = fights.filter(f => {
       const f1 = fighters.find(x => x.id === f.fighter1);
       const f2 = fighters.find(x => x.id === f.fighter2);
       return f1?.region === "EU" && f2?.region === "EU" && (f.fighter1 === fid || f.fighter2 === fid);
     });
   } else if (mode === "abc") {
-    // NA vs NA fights only
     relevantFights = fights.filter(f => {
       const f1 = fighters.find(x => x.id === f.fighter1);
       const f2 = fighters.find(x => x.id === f.fighter2);
       return f1?.region === "NA" && f2?.region === "NA" && (f.fighter1 === fid || f.fighter2 === fid);
     });
   } else {
-    // Default: WORLD = all non-CAF fights
     relevantFights = fights.filter(f => !f.caf && (f.fighter1 === fid || f.fighter2 === fid));
   }
 
-  // Sort by date (newest first)
   relevantFights.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-
-  // Compute breakdown + badges + streak
   const combined = buildCombinedMap().find(c => c.ids.includes(fid));
   const breakdown = calculateRankPoints(combined?.ids || [fid], true);
   const badges = computeBadgesForCombined(combined?.ids || [fid]);
 
-  // Build modal wrapper
   const modal = document.createElement("div");
   modal.className = "player-card-overlay";
-  
 
   modal.innerHTML = `
-
-  
   <div class="modal frosted" style="max-width:900px;">
     <button class="btn btn-danger" style="position:absolute;top:10px;right:14px;font-size:16px;"
-            onclick="document.body.classList.remove('modal-open'); this.closest('.player-card-overlay').remove()">✖</button>
+      onclick="document.body.classList.remove('modal-open'); this.closest('.player-card-overlay').remove()">✖</button>
 
     <div style="text-align:center;margin-bottom:12px;">
       <h2 style="font-family:Orbitron;font-size:28px;color:var(--gold);margin:0;">${fighter.name}</h2>
-     
       <div class="small-muted">${
-  mode === "caf"
-    ? "UFL CAF Division"
-    : mode === "rbc"
-    ? "UFL RBC Division (EU vs EU)"
-    : mode === "abc"
-    ? "UFL ABC Division (NA vs NA)"
-    : "UFL WORLD Division"
-}</div>
-
-
+        mode === "caf" ? "UFL CAF Division" :
+        mode === "rbc" ? "UFL RBC Division (EU vs EU)" :
+        mode === "abc" ? "UFL ABC Division (NA vs NA)" :
+        "UFL WORLD Division"
+      }</div>
     </div>
 
     <div class="players-header" style="margin-bottom:10px;">
       <div class="players-columns">
         <div class="players-column-left">
           Record:
-          <strong>${cafMode ? fighter.cafWins || 0 : fighter.wins || 0}-${cafMode ? fighter.cafLosses || 0 : fighter.losses || 0}-${cafMode ? fighter.cafDraws || 0 : fighter.draws || 0}</strong>
-          (${cafMode ? fighter.cafKoWins || 0 : fighter.koWins || 0} KO)
+          <strong>${fighter.wins}-${fighter.losses}-${fighter.draws}</strong>
+          (${fighter.koWins} KO)
         </div>
       </div>
     </div>
 
     <div style="text-align:center;margin-bottom:10px;">
-      ${badges.map(b => `<span class="badge" title="${b.desc}">${b.icon}</span>`).join("") || "<span class='text-[var(--muted)] text-sm'>No badges yet</span>"}
+      ${badges.map(b => `<span class="badge" title="${b.desc}">${b.icon}</span>`).join("") 
+        || "<span class='text-[var(--muted)] text-sm'>No badges yet</span>"}
     </div>
 
     <div class="breakdown">
@@ -2225,7 +2210,7 @@ function showFighterCard(fid, mode = "world") {
     <div id="fight-history" style="max-height:400px;overflow-y:auto;">
       ${
         relevantFights.length === 0
-          ? `<div class="text-center text-[var(--muted)] py-4">No ${cafMode ? "CAF" : "WORLD"} fights recorded.</div>`
+          ? `<div class="text-center text-[var(--muted)] py-4">No fights recorded.</div>`
           : relevantFights.map(f => {
               const f1 = fighters.find(x => x.id === f.fighter1)?.name || "Unknown";
               const f2 = fighters.find(x => x.id === f.fighter2)?.name || "Unknown";
@@ -2244,30 +2229,19 @@ function showFighterCard(fid, mode = "world") {
             }).join("")
       }
     </div>
-  </div>
-`;
 
-// ✅ Return all divisions
-return { world, caf, rbc, abc };
+    <!-- 🔄 COMPARE BUTTON -->
+    <div style="margin-top:20px; text-align:center;">
+      <button class="btn btn-primary"
+              onclick="openCompareModal('${fighter.id}')"
+              style="width:100%; padding:10px; font-size:16px;">
+        🔄 Compare With Another Fighter
+      </button>
+    </div>
 
-// 🏴‍☠️ RBC (EU) and 🦅 ABC (NA) region-locked rankings
-const rbc = activeOnly
-  .filter(f => {
-    const fighter = fighters.find(x => x.id === f.idMain);
-    return fighter?.region === "EU";
-  })
-  .slice(0, 15);
-
-const abc = activeOnly
-  .filter(f => {
-    const fighter = fighters.find(x => x.id === f.idMain);
-    return fighter?.region === "NA";
-  })
-  .slice(0, 15);
-
-
-
-
+  </div> <!-- modal -->
+  </div> <!-- overlay -->
+  `;
 
   document.body.classList.add("modal-open");
   document.body.appendChild(modal);
@@ -3490,6 +3464,34 @@ await recomputeAllFighterStats();
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   
+<div id="compare-modal" class="player-card-overlay" style="display:none;">
+<div class="modal frosted" style="max-width:900px; position:relative;">
+
+  <button class="btn btn-danger" 
+          onclick="closeCompareModal()" 
+          style="position:absolute; top:10px; right:14px; font-size:18px;">
+    ✖
+  </button>
+
+  <h2 id="compare-title" 
+      style="text-align:center; color:var(--gold); font-family:Orbitron; margin-bottom:12px;">
+    Compare Fighters
+  </h2>
+
+  <div style="margin-bottom:15px;">
+    <label style="font-size:14px; opacity:0.9;">Select Opponent</label>
+    <select id="compare-dropdown" 
+            onchange="runComparison()" 
+            style="width:100%; padding:8px; border-radius:6px; margin-top:6px;">
+    </select>
+  </div>
+
+  <div id="comparison-output" style="padding-bottom:20px;"></div>
+
+</div>
+</div>
+
+
   </body>
   </html>
   <!-- END Part 6 of 6 -->
