@@ -1606,16 +1606,30 @@ const combinedFights = fightsToUse.filter(
 if (f.ic === true) {
   const isWin  = fighterIds.includes(f.winner);
   const isDraw = f.winner === '0' || f.winner === 0;
+  const isLoss = !isWin && !isDraw;
+  const isKO   = isWin && f.method && /ko|tko/i.test(f.method);
 
   if (isWin) {
     points += 1;
     breakdown.base += 1;
+
+    // 🥊 IC KO/TKO bonus
+    if (isKO) {
+      points += 0.5;
+      breakdown.finish += 0.5;
+    }
   }
+
+  if (isLoss) {
+    points -= 1;
+    breakdown.base -= 1;
+  }
+
   // IC draw = 0 points
-  // IC loss = 0 points
 
   return; // ⛔ skip ALL other ranking logic for this fight
 }
+
 
 
     let base = 0;
