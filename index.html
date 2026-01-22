@@ -675,11 +675,13 @@ html, body {
   <iframe 
 width="300" 
 height="180" 
-src="https://www.youtube.com/embed/_TntqL0PXy8?si=RPXMrCbhzKTgGkQN"
+src="https://www.youtube.com/embed/tEWj08zpLH4?si=UMey9Ln8kRZWZF59"
 frameborder="0" 
 allowfullscreen>
 </iframe>
 </div>
+
+
 
 
 <br> </br> 
@@ -911,6 +913,16 @@ allowfullscreen>
               <option value="yes">Yes</option>
             </select>
           </div>
+
+          <!-- IC FIGHT -->
+<div class="form-group mb-2">
+  <label for="add-fight-ic" class="block text-sm font-semibold mb-1">IC</label>
+  <select id="add-fight-ic" class="form-control w-full p-1 border rounded">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+</div>
+
         
           <!-- BONUS -->
           <div class="form-group mb-4">
@@ -1588,6 +1600,24 @@ const combinedFights = fightsToUse.filter(
   const lossPenalty = 1.5 + (0.5 * Math.max(0, consecutiveLosses - 1));
 
   combinedFights.forEach(f => {
+
+
+// 🟡 IC FIGHT OVERRIDE — hard bypass
+if (f.ic === true) {
+  const isWin  = fighterIds.includes(f.winner);
+  const isDraw = f.winner === '0' || f.winner === 0;
+
+  if (isWin) {
+    points += 1;
+    breakdown.base += 1;
+  }
+  // IC draw = 0 points
+  // IC loss = 0 points
+
+  return; // ⛔ skip ALL other ranking logic for this fight
+}
+
+
     let base = 0;
     let bonus = 0;
     let multiplier = 1.0;
@@ -1645,12 +1675,12 @@ if (isWin && f.method && /ko|tko/i.test(f.method)) {
     breakdown.opponent += oppStrengthBonus;
   }
 }
+
     // 🔝 Contender Fight Bonus (Top 10 vs Top 10)
 // 🔝 TURN BACK ON AFTER A FEW WEEKS
 // if (f1Rank <= 10 || f2Rank <= 10) {
-//  multiplier *= 1.15;
-//  breakdown.contender += (base + bonus) * 0.15; // 🆕 track separately
-
+// multiplier *= 1.15;
+// breakdown.contender += (base + bonus) * 0.15; // 🆕 track separately
 
 
 
@@ -3163,6 +3193,8 @@ function populateMatchmakingSelect() {
   const titleFight = ($('add-fight-titlefight')?.value === 'yes'); // ✅ matches your <option value="yes">
   const bonus = $('add-fight-bonus')?.value || 'none';
   const region = $('add-fight-region')?.value || 'NA'; // ✅ optional, if region exists
+  const ic = ($('add-fight-ic')?.value === 'yes');
+
 
   if (!f1 || !f2) return alert('Select both fighters');
   if (f1 === f2) return alert('Fighter cannot fight themselves');
@@ -3177,6 +3209,7 @@ function populateMatchmakingSelect() {
     winner: winner || '0',
     date,
     caf,
+    ic,
     region,
     titleFight, // ✅ saves true/false to Firestore
     bonus       // ✅ saves POTN, FOTN, or none
