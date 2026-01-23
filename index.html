@@ -691,46 +691,52 @@ allowfullscreen>
 
   <ul style="list-style:none;padding:0;">
     <br>
-    <li><b>BASE POINTS</b>
-
-      
-
-    <li>Win: +3 Points</li>
+    <li><b>BASE SCORING</b></li>
+    <li>Win: +2 Points</li>
     <li>Draw: +1 Point</li>
-    <li>Loss: - 1.5 (increasing with each consecutive loss)</li>
-    <br> </br>
-    <li><b>FINISH BONUS</b>
-      <li>TKO/KO Win: +1 Point</li>
-      <br> </br>
-      <li><b>OPPONENT QUALITY</b>
-        <li>Wins over opponents with high win percentages earns a small bonus</li>
-        <br> </br>
-        <li><b>RECENCY BONUS</b>
-          <li>Awards recent activity</li>
-          <br> </br>
-          <li><b>WINNING STREAK</b>
-            <li>After 3 consecutive wins, each additional win earns +1 (capped at +5)</li>
-            <br> </br>
-            <li><b>CONTENDER BONUS</b>
-              <li>Small bonus if either fighter is ranked inside the top 10</li>
-              <br> </br>
-              <li><b>INACTIVITY</b>
-                <li>After 20 days of inactivity, total points gradually decay</li>
-  
-  
-
-                <br>
-                <li><b>INTERCONTINENTAL FIGHTS</b>
-            
-                  
-            
-                <li>Win: +1 Point</li>
-                <li>Draw: +0 Points</li>
-                <li>Loss: - 1 Point</li>
-            
-                  <li>TKO/KO Win: +1 Point</li>
-                  <br> </br>
-  
+    <li>Loss: −1.5 Points (increases by −0.5 for each consecutive loss)</li>
+    
+    <br></br>
+    
+    <li><b>FINISH BONUS</b></li>
+    <li>KO / TKO Win: +1 Point</li>
+    
+    <br></br>
+    
+    <li><b>OPPONENT RANK IMPACT</b></li>
+    <li>Win vs Top 5 opponent: +3 Points</li>
+    <li>Win vs Top 10 opponent: +2 Points</li>
+    <li>Win vs Top 20 opponent: +1 Point</li>
+    <li>Only applies if opponent has 6 or more total fights</li>
+    <li>Loss penalties for bad losses:</li>
+    <li>• Top 5 fighter losing to #11–#50: −2 additional points</li>
+    <li>• Top 10 fighter losing to #11–#50: −1 additional point</li>
+    
+    <br></br>
+    
+    <li><b>RECENCY BONUS</b></li>
+    <li>Fights within the last 20 days receive a 15% score increase</li>
+    
+    <br></br>
+    
+    <li><b>WIN STREAK MOMENTUM</b></li>
+    <li>After 3 consecutive wins, each additional win earns +1 point</li>
+    <li>Streak bonus capped at +5 points</li>
+    
+    <br></br>
+    
+    <li><b>INACTIVITY DECAY</b></li>
+    <li>After 20 days without a fight, total points decay by 0.5% per day</li>
+    <li>Maximum inactivity decay capped at 15%</li>
+    
+    <br></br>
+    
+    <li><b>INTERCONTINENTAL (IC) FIGHTS</b></li>
+    <li>IC Win: +1 Point</li>
+    <li>IC KO / TKO Win: +0.5 Bonus</li>
+    <li>IC Loss: −1 Point</li>
+    <li>IC fights ignore all other ranking modifiers</li>
+    
   
 </div>
 
@@ -1659,7 +1665,7 @@ if (f.ic === true) {
     const rankDiff = Math.abs(selfRank - oppRank);
 
     // 🏆 Base system
-    if (isWin) base += 3;
+    if (isWin) base += 2;
     if (isLoss) base -= lossPenalty;
     if (isDraw) base += 1;
     breakdown.base += base;
@@ -1679,28 +1685,45 @@ if (isWin && f.method && /ko|tko/i.test(f.method)) {
   //  }
   //  breakdown.modifiers += bonus;
 
-    // 💪 Opponent Strength (combined record)
-    const mainFighter = fighterIds[0];
-    const oppId = fighterIds.includes(f.fighter1) ? f.fighter2 : f.fighter1;
-    const oppCombined = combined.find(c => c.ids.includes(oppId));
-    let oppStrengthBonus = 0;
+// 🧠 Opponent Rank Impact (BONUS + BAD LOSS PENALTY)
+const oppId = fighterIds.includes(f.fighter1) ? f.fighter2 : f.fighter1;
+const oppCombined = combined.find(c => c.ids.includes(oppId));
 
-    if (oppCombined) {
-  const totalFights = oppCombined.wins + oppCombined.losses + oppCombined.draws;
+let opponentRankImpact = 0;
 
-  // Require at least 3 fights before opponent quality counts
+if (oppCombined) {
+  const totalFights =
+    oppCombined.wins + oppCombined.losses + oppCombined.draws;
+
+  // Require opponent to have a real résumé
   if (totalFights >= 6) {
-    const oppWinPct = oppCombined.wins / totalFights;
-    oppStrengthBonus = (oppWinPct - 0.50) * 3;
 
-    // Never penalize beating someone
-    if (isWin && oppStrengthBonus < 0) oppStrengthBonus = 0;
+    // ✅ WIN BONUSES (who you beat)
+    if (isWin) {
+      if (oppRank <= 5) {
+        opponentRankImpact = 3;
+      } else if (oppRank <= 10) {
+        opponentRankImpact = 2;
+      } else if (oppRank <= 20) {
+        opponentRankImpact = 1;
+      }
+    }
 
-    oppStrengthBonus = Math.max(-2, Math.min(oppStrengthBonus, 2));
-    base += oppStrengthBonus;
-    breakdown.opponent += oppStrengthBonus;
+    // ❌ BAD LOSS PENALTIES (who you lost to)
+    if (isLoss && selfRank <= 10 && oppRank >= 11 && oppRank <= 50) {
+      if (selfRank <= 5) {
+        opponentRankImpact = -2;
+      } else {
+        opponentRankImpact = -1;
+      }
+    }
+
+    base += opponentRankImpact;
+    breakdown.opponent += opponentRankImpact;
   }
 }
+
+
 
     // 🔝 Contender Fight Bonus (Top 10 vs Top 10)
 // 🔝 TURN BACK ON AFTER A FEW WEEKS
