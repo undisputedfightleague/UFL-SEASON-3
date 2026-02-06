@@ -1152,7 +1152,7 @@ allowfullscreen>
   "UFL World Champion",
   "RBC Champion",
   "ABC Champion",
-  "UFL CAF Champion"
+  "UFL Intercontinental Champion"
 ];
 
   
@@ -1350,6 +1350,31 @@ function buildCombinedMap() {
   const badges = [];
 
 
+// 🏆 INTERCONTINENTAL CHAMPION BADGE
+if (champions?.uflIntercontinental) {
+  // Ensure IDs are compared as strings to avoid type issues
+  const championId = String(champions.uflIntercontinental);
+  const normalizedIds = ids.map(id => String(id));
+
+  // Debug logs to see what’s happening
+  console.log('Champion ID:', championId);
+  console.log('IDs array:', normalizedIds);
+  console.log('Includes check:', normalizedIds.includes(championId));
+
+  if (normalizedIds.includes(championId)) {
+    badges.push({
+      key: 'Intercontinental Champion',
+      icon: '🏆',
+      desc: `Intercontinental Champion — ${champions.uflIntercontinentalDefenses || 0} defenses`
+    });
+    console.log('🏆 Intercontinental Champion badge added for', championId);
+  } else {
+    console.warn('Champion ID not found in current fighter IDs.');
+  }
+} else {
+  console.warn('No Intercontinental Champion is set in the champions object.');
+}
+
 
   
 
@@ -1363,6 +1388,10 @@ function buildCombinedMap() {
   if (streakLen >= 1) {
     badges.push({ key: 'Winning Streak', icon: '🔥', desc: `Current win streak: ${streakLen}` });
   }
+
+
+
+
 
   // 🥊 KO ARTIST — 8+ fights and 4+ KO/TKO wins
   if (totalFights >= 8 && combined.koWins >= 4) {
@@ -1510,6 +1539,7 @@ try {
   'Champion',
   'Former Champion',
   'Icon',
+  'Intercontinental Champion',
   'Winning Streak',
   'Global',
   'KO Artist',
@@ -2527,19 +2557,40 @@ function renderRankings(list, containerId) {
 
   
   /* Small trophy icons for platform champs */
-  function getChampionIcons(f) {
-    const icons = [];
-    const champMap = {
-      uflPC:'UFL PC', uflPS5:'UFL PS5', uflXbox:'UFL XBOX',
-      rbcPC:'RBC PC', rbcPS5:'RBC PS5', rbcXbox:'RBC XBOX'
-    };
-    for (const [field,label] of Object.entries(champMap)) {
-      if (champions[field] && f.ids.includes(champions[field])) {
-        icons.push(`<i class="fas fa-trophy champ-icon" title="${label} CHAMPION"></i>`);
-      }
+  function normalizeId(id) {
+  return String(id).split(':').pop();
+}
+
+function getChampionIcons(f) {
+  const icons = [];
+  const champMap = {
+    uflWorld: 'UFL World',
+    uflIntercontinental: 'UFL Intercontinental',
+    rbc: 'RBC',
+    abc: 'ABC',
+    uflCAF: 'UFL CAF'
+  };
+
+  const fighterIds = [
+    ...(f.ids || []).map(normalizeId),
+    ...(f.id ? [normalizeId(f.id)] : [])
+  ];
+
+  for (const [field, label] of Object.entries(champMap)) {
+    if (
+      champions[field] &&
+      fighterIds.includes(normalizeId(champions[field]))
+    ) {
+      icons.push(
+        `<i class="fas fa-trophy champ-icon" title="${label} Champion"></i>`
+      );
     }
-    return icons.join(' ');
   }
+
+  return icons.join(' ');
+}
+
+
   
   /* Fights tab render */
   function renderFights() {
@@ -3052,7 +3103,7 @@ function closePlayerCard() {
   
       // For UFL world & CAF add defenses input and last defense display
     // For World, CAF, RBC, ABC add defenses input and last defense display
-if (['uflWorld', 'uflCAF', 'rbc', 'abc'].includes(field)) {
+if (['uflWorld', 'uflIntercontinental', 'rbc', 'abc'].includes(field)) {
   const defLabel = document.createElement('div');
   defLabel.style.marginTop = '8px';
   defLabel.style.fontSize = '13px';
@@ -3126,6 +3177,10 @@ if (['uflWorld', 'uflCAF', 'rbc', 'abc'].includes(field)) {
   if (field === 'abc') {
     const def = parseInt($('champ-abc-def')?.value || 0, 10) || 0;
     payload.abcDefenses = def;
+  }
+  if (field === 'uflIntercontinental') {
+    const def = parseInt($('champ-uflIntercontinental-def')?.value || 0, 10) || 0;
+    payload.uflIntercontinentalDefenses = def;
   }
 });
 
@@ -3437,15 +3492,19 @@ await recomputeAllFighterStats();
   }
   
   /* Map title string to settings field */
-  function mapTitleToField(title) {
+function mapTitleToField(title) {
   switch (title) {
     case 'UFL World Champion': return 'uflWorld';
     case 'RBC Champion': return 'rbc';
     case 'ABC Champion': return 'abc';
     case 'UFL CAF Champion': return 'uflCAF';
-    default: return title.replace(/\s+/g, '').toLowerCase();
+    case 'UFL Intercontinental Champion': return 'uflIntercontinental';
+
+    default:
+      return title.replace(/\s+/g, '').toLowerCase();
   }
 }
+
 
   
   /* Inject admin social controls (YouTube save UI) */
