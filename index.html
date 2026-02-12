@@ -617,12 +617,193 @@ html, body {
 }
 
 
+/* =========================
+   LEGACY MODAL (ISOLATED)
+   ========================= */
+   .legacy-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
+.legacy-modal {
+  background: #0b0b0f;
+  width: 900px;
+  max-height: 90vh;
+  border-radius: 14px;
+  padding: 24px;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(212,175,55,0.25);
+  color: #f5f5f5;
+}
+
+.legacy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(212,175,55,0.25);
+  padding-bottom: 12px;
+}
+
+.legacy-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: #d4af37;
+}
+
+.legacy-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.legacy-section {
+  margin-top: 20px;
+}
+
+.legacy-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  gap: 12px;
+}
+
+.legacy-stat {
+  background: #141418;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.legacy-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.legacy-tab {
+  background: #141418;
+  border: 1px solid #222;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.legacy-tab.active {
+  background: #d4af37;
+  color: #000;
+  font-weight: 700;
+}
+
+.legacy-content {
+  margin-top: 16px;
+}
+
+.legacy-click {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.legacy-click:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(212,175,55,0.35);
+}
+
+.defense-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #222;
+}
+
+.defense-row strong {
+  color: #d4af37;
+}
+
+.legacy-record-header{
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(212,175,55,0.10);
+  border: 1px solid rgba(212,175,55,0.20);
+  margin-bottom: 10px;
+}
+
+.legacy-record-header strong{
+  color: var(--gold);
+}
+
+
+/* ✅ ADMIN tab: force readable text in ALL inputs/textareas/selects */
+#admin-tab textarea,
+#admin-tab input,
+#admin-tab select {
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+  background: rgba(0,0,0,0.75) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+}
+
+#admin-tab textarea::placeholder,
+#admin-tab input::placeholder {
+  color: rgba(255,255,255,0.55) !important;
+}
+
+
+#loading-overlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+}
+#loading-overlay.hidden{ display:none; }
+
+#loading-overlay .loading-box{
+  padding:18px 22px;
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.45);
+  border-radius:14px;
+  text-align:center;
+}
+#loading-overlay .loading-text{
+  margin-top:10px;
+  font-weight:700;
+  letter-spacing:0.5px;
+}
+
+#loading-overlay .spinner{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.25);
+  border-top-color: rgba(255,255,255,0.95);
+  margin:0 auto;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 
 </style>
 </head>
 <body>
+
+
+<div id="loading-overlay">
+<div class="loading-box">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading UFL…</div>
+</div>
+</div>
+
 
   <div style="
   background:black;
@@ -631,7 +812,7 @@ html, body {
   justify-content:center;
 ">
   <img
-    src="https://cdn.discordapp.com/attachments/1292632666637598803/1469000208930177258/Untitled-1.png?ex=69895c4e&is=69880ace&hm=e2890603337212c897798f20a2bfead70fa2ffcad885208ce0282adf6a37d1ed&"
+    src="https://github.com/undisputedfightleague/ufl-assets/blob/main/Untitled-1.png?raw=true"
     alt="UFL LOGO"
     style="max-width:320px; width:100%; display:block;"
   />
@@ -665,15 +846,23 @@ html, body {
 
 
   
-  <button id="btn-players" class="tab-btn" onclick="switchTab('players')">
-    <i class="fas fa-user-friends"></i>&nbsp;PLAYERS
-  </button>
+ 
   <button id="btn-fights" class="tab-btn" onclick="switchTab('fights')">
     <i class="fas fa-list"></i>&nbsp;FIGHTS
   </button>
+
+  <button id="btn-legacy" class="tab-btn" onclick="switchTab('legacy')">
+    <i class="fas fa-landmark"></i>&nbsp;LEGACY
+  
+  
+  </button>
+  
+
+
   <button id="btn-admin" class="tab-btn" onclick="switchTab('admin')">
     <i class="fas fa-lock"></i>&nbsp;ADMIN
   </button>
+  
 </div>
 
 
@@ -816,22 +1005,7 @@ allowfullscreen>
 
 
 
-  <!-- PLAYERS TAB -->
-  <div id="players-tab" class="tab-panel hidden" style="margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h2 style="margin:0;font-family:Orbitron;">PLAYERS</h2>
-      <div><input id="players-search" placeholder="Search players..." oninput="renderPlayers()" /><button class="btn" onclick="renderPlayers()">Search</button></div>
-    </div>
 
-    <div class="players-header">
-      <div class="players-columns">
-        <div class="players-column-left">PLAYER NAME</div>
-        
-      </div>
-    </div>
-
-    <div id="players-list" style="max-height:640px; overflow:auto;"></div>
-  </div>
 
   <!-- FIGHTS TAB -->
   <div id="fights-tab" class="tab-panel hidden" style="margin-top:14px;">
@@ -845,7 +1019,33 @@ allowfullscreen>
     <div id="fights-list" style="max-height:640px; overflow:auto;"></div>
   </div>
 
+  <div id="legacy-tab" class="tab-panel hidden">
 
+    <h2 style="font-family:Orbitron;">🏛️ UFL LEGACY</h2>
+    <div class="small-muted" style="margin-bottom:14px;">
+      Cross-season records, championship history, and Hall of Fame
+    </div>
+  
+    <div class="frosted" style="margin-bottom:16px;">
+      <h3>Legacy Fighters</h3>
+
+      <div style="display:flex; gap:8px; align-items:center; margin:10px 0;">
+        <input id="legacy-search" class="input" style="flex:1;"
+               placeholder="Search fighters..."
+               oninput="renderLegacyFighterList?.()" />
+        <button class="btn" onclick="document.getElementById('legacy-search').value=''; renderLegacyFighterList?.();">
+          Clear
+        </button>
+      </div>
+      
+
+      <div id="legacy-fighter-list" class="legacy-grid">
+        <!-- Legacy fighter rows injected here -->
+      </div>
+    </div>
+  
+  </div>
+  
 
   <!-- ADMIN TAB -->
   <div id="admin-tab" class="tab-panel hidden" style="margin-top:14px;">
@@ -1062,6 +1262,134 @@ allowfullscreen>
             <button class="btn" onclick="refreshRankings()">🔄 Refresh Rankings</button>
           </div>
 
+          <div class="frosted" style="margin-top:12px; grid-column:span 2;">
+            <h3 style="margin:0 0 8px 0;">LEGACY TOOLS</h3>
+            <div class="small-muted">
+              Paste Season 1 records (tab, pipe, or CSV). Format: PLAYER NAME | WIN | LOSS | DRAW | SEASON
+            </div>
+          
+            <textarea id="legacy-s1-input" class="input"
+              style="width:100%; height:170px; margin-top:8px;"
+              placeholder="PLAYER NAME\tWIN\tLOSS\tDRAW\tSEASON
+          Donny\t12\t3\t1\t1"></textarea>
+          
+            <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+              <button class="btn btn-yellow" onclick="importSeason1Records()">Import Season 1 Records</button>
+              <button class="btn" onclick="loadSeason1RecordsToBox()">Load Current S1 Records</button>
+              <button class="btn btn-danger" onclick="clearSeason1Records()">Clear S1 Records</button>
+            </div>
+          
+            <div class="small-muted" style="margin-top:8px;">
+              Stored in Firestore at <code>settings/legacyS1</code>. Matching is by lowercased fighter name.
+            </div>
+          </div>
+          
+          <div class="frosted" style="margin-top:12px; grid-column:span 2;">
+            <h3 style="margin:0 0 8px 0;">LEGACY — CHAMPION HISTORY</h3>
+            <div class="small-muted">Add/edit title reigns & defenses. These power Titles/Defenses in LEGACY modals.</div>
+
+            <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-top:10px;">
+              <div style="flex:1; min-width:260px;">
+                <label class="small-muted">Edit Existing Reign</label>
+                <select id="reign-select" class="input" style="width:100%;" onchange="loadSelectedLegacyReign()">
+                  <option value="">-- New Reign --</option>
+                </select>
+              </div>
+            
+              <button class="btn" onclick="clearLegacyReignForm()">New</button>
+              <button class="btn btn-danger" onclick="deleteSelectedLegacyReign()">Delete</button>
+            </div>
+            
+          
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+              <div>
+                <label class="small-muted">Fighter Name</label>
+                <input id="reign-fighter" class="input" placeholder="Donny" />
+              </div>
+          
+              <div>
+                <label class="small-muted">Title</label>
+                <input id="reign-title" class="input" placeholder="UFL World" />
+              </div>
+          
+              <div>
+                <label class="small-muted">Season</label>
+                <input id="reign-season" type="number" class="input" value="2" min="1" max="3" />
+              </div>
+          
+              <div>
+                <label class="small-muted">Won Date</label>
+                <input id="reign-won" type="date" class="input" />
+              </div>
+          
+              <div>
+                <label class="small-muted">Lost Date (optional)</label>
+                <input id="reign-lost" type="date" class="input" />
+              </div>
+            </div>
+          
+            <label class="small-muted" style="display:block; margin-top:10px;">Defenses (one per line)</label>
+            <div class="small-muted">Format: YYYY-MM-DD | Opponent | Event | Method</div>
+            <textarea id="reign-defenses" class="input" style="width:100%; height:130px; margin-top:6px;"
+              placeholder="2024-08-12 | Ipro | UFL Fight Night 18 | TKO (R5)"></textarea>
+          
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+              <button class="btn btn-yellow" onclick="saveLegacyReign()">Save Reign</button>
+            </div>
+          </div>
+          
+          <div class="admin-section">
+          <h3>🏛️ Legacy Import (Season 2)</h3>
+        
+          <textarea id="legacyFightersInput"
+            placeholder="Paste Season 2 fighters JSON here"></textarea>
+        
+          <textarea id="legacyFightsInput"
+            placeholder="Paste Season 2 fights JSON here"></textarea>
+        
+          <button onclick="importSeason2Legacy()">
+            Import Season 2 Legacy Data
+          </button>
+        </div>
+          <button class="btn" style="margin-top:10px;"
+          onclick="openLegacyFighterModal(mockLegacyFighter)">
+          🧪 Open Legacy Fighter Modal (DEV)
+        </button>
+        
+        <div class="admin-section" style="margin-top:14px;">
+          <h3>✍️ Legacy Manual Entry (Season Record Override)</h3>
+          <div class="small-muted" style="margin-bottom:10px;">
+            Use this if a fighter is missing or if you need to correct a season record manually.
+            This does not touch Season 3 live fights—LEGACY only.
+          </div>
+        
+          <input id="legacy-manual-name" class="input" style="width:100%;"
+            placeholder="Fighter name (must match how you want it displayed)" />
+        
+            <div style="display:grid; grid-template-columns: 140px 80px 80px 80px; gap:8px; margin-top:8px; align-items:center;">
+              <select id="legacy-manual-season" class="input" style="width:140px;">
+                <option value="1">Season 1</option>
+                <option value="2">Season 2</option>
+                <option value="3">Season 3</option>
+              </select>
+            
+              <input id="legacy-manual-w" class="input" type="number" min="0" placeholder="W" />
+              <input id="legacy-manual-l" class="input" type="number" min="0" placeholder="L" />
+              <input id="legacy-manual-d" class="input" type="number" min="0" placeholder="D" />
+            </div>
+            
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+              <button class="btn btn-yellow" onclick="saveLegacyManualRecord()">Save</button>
+              <button class="btn" onclick="loadLegacyManualRecord()">Load</button>
+              <button class="btn btn-danger" onclick="deleteLegacyManualRecord()">Delete</button>
+            </div>
+            
+        
+          <div class="small-muted" style="margin-top:8px;">
+            Tip: “Load” pulls any existing manual entry so you can edit it safely.
+          </div>
+        </div>
+
           <div class="breakdown" id="ranking-breakdown" style="margin-top:14px;">
             <div style="font-weight:700;color:var(--gold);margin-bottom:6px;">RANKING POINTS BREAKDOWN</div>
             <div>- Base: <strong>Wins +3</strong>, <strong>Losses −1 (escalates)</strong>, <strong>Draws +1</strong></div>
@@ -1121,6 +1449,62 @@ allowfullscreen>
   </div>
 </div>
 </div>
+
+<!-- LEGACY FIGHTER MODAL (DEV / READ-ONLY) -->
+<div id="legacy-modal-backdrop" class="legacy-backdrop hidden">
+  <div class="legacy-modal">
+
+    <div class="legacy-header">
+      <div>
+        <div class="legacy-name" id="legacy-name">Fighter Name</div>
+        <div class="legacy-sub" id="legacy-sub">Seasons: S1 • S2 • S3</div>
+      </div>
+      <button class="legacy-close" onclick="closeLegacyFighterModal()">✖</button>
+    </div>
+
+    <div class="legacy-section">
+      <h3>Career Summary</h3>
+      <div class="legacy-stats" id="legacy-summary"></div>
+    </div>
+
+    <div class="legacy-tabs">
+      <button class="legacy-tab active" onclick="switchLegacyTab('career')">Career</button>
+      <button class="legacy-tab" onclick="switchLegacyTab('s1')">Season 1</button>
+      <button class="legacy-tab" onclick="switchLegacyTab('s2')">Season 2</button>
+      <button class="legacy-tab" onclick="switchLegacyTab('s3')">Season 3</button>
+    </div>
+
+    <div class="legacy-content" id="legacy-content"></div>
+
+  </div>
+</div>
+
+<!-- TITLE DEFENSE HISTORY MODAL --> <div id="defense-modal-backdrop" class="legacy-backdrop hidden"> <div class="legacy-modal" style="max-width:700px;"> <div class="legacy-header"> <div class="legacy-name">Title Defense History</div> <button class="legacy-close" onclick="closeDefenseHistoryModal()">✖</button> </div> <div class="legacy-content" id="defense-history-list"></div> </div> </div>
+
+<!-- TITLE REIGNS MODAL -->
+<div id="reigns-modal-backdrop" class="legacy-backdrop hidden">
+  <div class="legacy-modal" style="max-width:760px;">
+
+    <div class="legacy-header">
+      <div class="legacy-name">Title Reigns</div>
+      <button class="legacy-close" onclick="closeTitleReignsModal()">✖</button>
+    </div>
+
+    <div class="legacy-content" id="reigns-history-list"></div>
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
 <!-- END Part 2 of 6 -->
 <!-- START Part 3 of 6 -->
 <script>
@@ -1148,6 +1532,155 @@ allowfullscreen>
   let fights = [];     // raw fight docs from Firestore
   let champions = {};  // champion assignments from settings/champions doc
   
+  let allFights = [];      // ✅ holds S2+S3 for LEGACY later
+let season3Fights = [];  // ✅ holds only S3 for current season UI
+
+let legacyS1Records = {}; // key: normalized fighter name -> { w, l, d, season: 1 }
+
+let legacyTitleReigns = []; // array of reign docs
+
+// ✅ Manual legacy overrides (by nameKey, per season)
+let legacyManualRecords = {};
+
+// ✅ Legacy-only fighter names (so Season 1-only people can appear on the list)
+let legacyExtraFighters = [];
+
+let _fightersLoaded = false;
+let _fightsLoaded = false;
+
+function setLoading(isLoading){
+  const el = document.getElementById('loading-overlay');
+  if (!el) return;
+  el.classList.toggle('hidden', !isLoading);
+}
+
+
+// Listen for manual overrides
+db.collection('settings').doc('legacyManualRecords').onSnapshot(doc => {
+  const data = doc.exists ? doc.data() : {};
+  legacyManualRecords = data.records || {};
+  if (_legacyActive) renderLegacyFighterList?.();
+}, e => console.warn('legacyManualRecords listener', e));
+
+// Listen for extra legacy-only fighters
+db.collection('settings').doc('legacyExtraFighters').onSnapshot(doc => {
+  const data = doc.exists ? doc.data() : {};
+  legacyExtraFighters = Array.isArray(data.names) ? data.names : [];
+  if (_legacyActive) renderLegacyFighterList?.();
+}, e => console.warn('legacyExtraFighters listener', e));
+
+function _legacyNameKey(name) {
+  return (name || '').trim().toLowerCase();
+}
+
+async function _ensureLegacyExtraFighter(name) {
+  const clean = (name || '').trim();
+  if (!clean) return;
+  const ref = db.collection('settings').doc('legacyExtraFighters');
+  const snap = await ref.get();
+  const existing = snap.exists ? (snap.data().names || []) : [];
+  if (existing.some(n => _legacyNameKey(n) === _legacyNameKey(clean))) return;
+
+  const next = [...existing, clean].sort((a,b)=>a.localeCompare(b));
+  await ref.set({ names: next }, { merge:true });
+}
+
+async function saveLegacyManualRecord() {
+  const name = ($('legacy-manual-name')?.value || '').trim();
+  const season = parseInt($('legacy-manual-season')?.value || '1', 10);
+  const w = parseInt($('legacy-manual-w')?.value || '0', 10) || 0;
+  const l = parseInt($('legacy-manual-l')?.value || '0', 10) || 0;
+  const d = parseInt($('legacy-manual-d')?.value || '0', 10) || 0;
+
+  if (!name) return alert('Enter a fighter name.');
+
+  const key = _legacyNameKey(name);
+  const ref = db.collection('settings').doc('legacyManualRecords');
+  const snap = await ref.get();
+  const existing = snap.exists ? (snap.data().records || {}) : {};
+
+  const prev = existing[key] || {};
+  const next = {
+    ...existing,
+    [key]: {
+      ...prev,
+      name, // keep display name
+      [season]: { w, l, d }
+    }
+  };
+
+  await ref.set({ records: next }, { merge:true });
+
+  // ✅ If they are a Season 1-only fighter and not in S3 fighters,
+  // this makes sure they show up on the LEGACY list.
+  await _ensureLegacyExtraFighter(name);
+
+  alert(`Saved manual LEGACY record for ${name} (S${season} ${w}-${l}-${d}).`);
+  if (_legacyActive) renderLegacyFighterList?.();
+}
+
+async function loadLegacyManualRecord() {
+  const name = ($('legacy-manual-name')?.value || '').trim();
+  const season = parseInt($('legacy-manual-season')?.value || '1', 10);
+  if (!name) return alert('Enter a fighter name.');
+
+  const key = _legacyNameKey(name);
+  const entry = legacyManualRecords?.[key]?.[season] || null;
+
+  $('legacy-manual-w').value = entry ? (entry.w || 0) : 0;
+  $('legacy-manual-l').value = entry ? (entry.l || 0) : 0;
+  $('legacy-manual-d').value = entry ? (entry.d || 0) : 0;
+
+  alert(entry ? `Loaded manual entry for ${name} (S${season}).` : `No manual entry found for ${name} (S${season}).`);
+}
+
+async function deleteLegacyManualRecord() {
+  const name = ($('legacy-manual-name')?.value || '').trim();
+  const season = parseInt($('legacy-manual-season')?.value || '1', 10);
+  if (!name) return alert('Enter a fighter name.');
+  if (!confirm(`Delete manual LEGACY record for ${name} (Season ${season})?`)) return;
+
+  const key = _legacyNameKey(name);
+  const ref = db.collection('settings').doc('legacyManualRecords');
+  const snap = await ref.get();
+  const existing = snap.exists ? (snap.data().records || {}) : {};
+  const cur = existing[key] || {};
+  if (!cur[season]) return alert('No manual entry to delete.');
+
+  const nextKeyObj = { ...cur };
+  delete nextKeyObj[season];
+
+  const next = { ...existing };
+  if (Object.keys(nextKeyObj).filter(k => k !== 'name').length === 0) {
+    delete next[key]; // remove entire fighter if nothing left
+  } else {
+    next[key] = nextKeyObj;
+  }
+
+  await ref.set({ records: next }, { merge:true });
+  alert('Deleted manual entry.');
+  if (_legacyActive) renderLegacyFighterList?.();
+}
+
+
+// ⚡ Performance caches
+let _combinedCache = null;
+let _combinedCacheKey = '';
+let _legacyActive = false;
+
+// Render throttling
+let _renderQueued = false;
+function scheduleRenderAll() {
+  if (_renderQueued) return;
+  _renderQueued = true;
+  requestAnimationFrame(() => {
+    _renderQueued = false;
+    renderAll?.();
+    if (_legacyActive) renderLegacyFighterList?.();
+  });
+}
+
+
   const TITLES = [
   "UFL World Champion",
   "RBC Champion",
@@ -1173,8 +1706,13 @@ allowfullscreen>
      🔁 FIRESTORE LISTENERS
      =========================== */
   
-     db.collection('fighters').onSnapshot(snap => {
+ /* ===========================
+   🔁 FIRESTORE LISTENERS
+   =========================== */
+
+db.collection('fighters').onSnapshot(snap => {
   fighters = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
   // normalize expected fields
   fighters.forEach(f => {
     f.wins = f.wins || 0;
@@ -1186,57 +1724,133 @@ allowfullscreen>
     // convenience totals (kept for rendering, recalculated in recomputeAllFighterStats when needed)
     f.totalFights = (f.wins + f.losses + f.draws) || 0;
   });
+
   // update any UI selects / lists that depend on fighters
   populateEditFightSelects?.();
   populateMatchmakingSelect?.();
   populateChampionTitleSelects?.();
   populateAdminFighters?.();
-  renderAll?.();
+
+  // ✅ throttle heavy rerenders
+  scheduleRenderAll?.();
+
+  // ✅ ONLY rerender legacy list when the Legacy tab is open
+  if (_legacyActive) renderLegacyFighterList?.();
+
+  _fightersLoaded = true;
+setLoading(!(_fightersLoaded && _fightsLoaded));
+
+
+
 }, e => console.error('fighters listener error', e));
 
-  
+
 db.collection('fights').orderBy('date','desc').onSnapshot(snap => {
-  fights = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  // ensure consistent fields
-  fights.forEach(f => {
+  // 1) Load ALL fights from Firestore (S2 + S3)
+  allFights = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // 2) Normalize fields for ALL fights (safe)
+  allFights.forEach(f => {
     f.platform = f.platform || '';
     f.method = f.method || '';
     f.caf = !!f.caf;
-    // store human readable winnerName/fighter names if not present (some older entries might miss them)
+
     f.fighter1Name = f.fighter1Name || (fighters.find(x => x.id === f.fighter1)?.name || '');
     f.fighter2Name = f.fighter2Name || (fighters.find(x => x.id === f.fighter2)?.name || '');
-    f.winnerName = (f.winner === '0' || f.winner === 0) ? 'Draw' : (fighters.find(x => x.id === f.winner)?.name || '');
+    f.winnerName = (f.winner === '0' || f.winner === 0)
+      ? 'Draw'
+      : (fighters.find(x => x.id === f.winner)?.name || '');
   });
+
+  // 3) 🔒 Isolate Season 3 fights ONLY (and ignore legacy)
+  //    - If season is missing, assume it's season 3 (your old fights)
+  season3Fights = allFights.filter(f =>
+    f.legacy !== true && (f.season === 3 || typeof f.season === 'undefined' || f.season === null)
+  );
+
+  // 4) ✅ CRITICAL HOTFIX:
+  //    Make the rest of the site (rankings/badges/points) see ONLY Season 3 fights.
+  fights = season3Fights;
+
+  // 5) Continue normal flow (now safe)
   populateEditFightSelects?.();
-  recomputeTitleDefensesFromFights?.();
-  renderAll?.();
+  recomputeTitleDefensesFromFights?.(season3Fights);
+
+  // ✅ throttle heavy rerenders
+  scheduleRenderAll?.();
+
+  // ✅ If admin is unlocked, refresh the fights dropdown + list now that fights exist
+  if (sessionStorage.getItem('isAdmin')) {
+    populateAdminFightsDropdown?.();
+    populateAdminFightsList?.();
+  }
+
+  // ✅ If legacy tab open, refresh legacy list now that allFights changed
+  if (_legacyActive) renderLegacyFighterList?.();
+
+  _fightsLoaded = true;
+setLoading(!(_fightersLoaded && _fightsLoaded));
+
+
 }, e => console.error('fights listener error', e));
 
-  
-  db.collection('settings').doc('champions').onSnapshot(doc=>{
-    champions = doc.exists ? doc.data() : {};
-    // normalize fields we expect
-    champions.uflWorld = champions.uflWorld || null;
-    champions.uflWorldDefenses = champions.uflWorldDefenses || 0;
-    champions.uflWorldLastDefense = champions.uflWorldLastDefense || '';
-    champions.uflCAF = champions.uflCAF || null;
-    champions.uflCAFDefenses = champions.uflCAFDefenses || 0;
-    champions.uflCAFLastDefense = champions.uflCAFLastDefense || '';
-    champions.uflPC = champions.uflPC || null;
-    champions.uflPS5 = champions.uflPS5 || null;
-    champions.uflXbox = champions.uflXbox || null;
-    champions.rbcPC = champions.rbcPC || null;
-    champions.rbcPS5 = champions.rbcPS5 || null;
-    champions.rbcXbox = champions.rbcXbox || null;
-    champions.youtubePlaylist = champions.youtubePlaylist || '';
-    populateChampionTitleSelects?.();
-    renderAll?.();
-  }, e=>console.warn('champions listener', e));
-  
-  /* optional admin password stored in settings/admin */
-  db.collection('settings').doc('admin').get().then(doc=>{
-    if(doc.exists) window.ADMIN_PW = doc.data().password || null;
-  }).catch(()=>{ window.ADMIN_PW = null; });
+
+db.collection('settings').doc('legacyS1').onSnapshot(doc => {
+  legacyS1Records = doc.exists ? (doc.data().records || {}) : {};
+  // ✅ if legacy tab open, refresh list to reflect s1 totals
+  if (_legacyActive) renderLegacyFighterList?.();
+}, e => console.warn('legacyS1 listener', e));
+
+
+db.collection('settings').doc('champions').onSnapshot(doc => {
+  champions = doc.exists ? doc.data() : {};
+
+  // normalize fields we expect
+  champions.uflWorld = champions.uflWorld || null;
+  champions.uflWorldDefenses = champions.uflWorldDefenses || 0;
+  champions.uflWorldLastDefense = champions.uflWorldLastDefense || '';
+
+  champions.uflCAF = champions.uflCAF || null;
+  champions.uflCAFDefenses = champions.uflCAFDefenses || 0;
+  champions.uflCAFLastDefense = champions.uflCAFLastDefense || '';
+
+  champions.uflPC = champions.uflPC || null;
+  champions.uflPS5 = champions.uflPS5 || null;
+  champions.uflXbox = champions.uflXbox || null;
+
+  champions.rbcPC = champions.rbcPC || null;
+  champions.rbcPS5 = champions.rbcPS5 || null;
+  champions.rbcXbox = champions.rbcXbox || null;
+
+  champions.youtubePlaylist = champions.youtubePlaylist || '';
+
+  populateChampionTitleSelects?.();
+
+  // ✅ throttle heavy rerenders
+  scheduleRenderAll?.();
+
+}, e => console.warn('champions listener', e));
+
+
+/* optional admin password stored in settings/admin */
+db.collection('settings').doc('admin').get().then(doc => {
+  if (doc.exists) window.ADMIN_PW = doc.data().password || null;
+}).catch(() => { window.ADMIN_PW = null; });
+
+
+db.collection('legacy_title_reigns').onSnapshot(snap => {
+  legacyTitleReigns = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // ✅ populate the Admin dropdown
+  populateLegacyReignDropdown?.();
+
+  // ✅ refresh legacy list if open (titles/defenses counts may change)
+  if (_legacyActive) renderLegacyFighterList?.();
+
+}, e => console.warn('legacy_title_reigns listener', e));
+
+
+
   
   /* ===========================
      🧩 COMBINE FIGHTER DATA (same names across platforms)
@@ -1254,19 +1868,25 @@ db.collection('fights').orderBy('date','desc').onSnapshot(snap => {
   /* ============================================================
    🔗 Combine fighters across platforms by identical name
    ============================================================ */
-function buildCombinedMap() {
-  // if fighters array not yet loaded, return empty
+   function buildCombinedMap() {
   if (!fighters || !Array.isArray(fighters) || fighters.length === 0) return [];
+
+  // 🔑 Cache key changes only when fighter set changes
+  const key = fighters.length + ':' + fighters.map(f => f.id).join('|');
+
+  if (_combinedCache && _combinedCacheKey === key) {
+    return _combinedCache;
+  }
 
   const combinedMap = {};
 
   fighters.forEach(f => {
     if (!f || !f.name) return;
 
-    const key = f.name.trim().toLowerCase();
+    const k = f.name.trim().toLowerCase();
 
-    if (!combinedMap[key]) {
-      combinedMap[key] = {
+    if (!combinedMap[k]) {
+      combinedMap[k] = {
         name: f.name.trim(),
         ids: [],
         isCAFAny: false,
@@ -1279,17 +1899,34 @@ function buildCombinedMap() {
       };
     }
 
-    const current = combinedMap[key];
-    current.ids.push(f.id);
-    current.isCAFAny = current.isCAFAny || !!f.isCAF;
-    current.wins += parseInt(f.wins || 0);
-    current.losses += parseInt(f.losses || 0);
-    current.draws += parseInt(f.draws || 0);
-    current.koWins += parseInt(f.koWins || 0);
+    const cur = combinedMap[k];
+    cur.ids.push(f.id);
+    cur.isCAFAny = cur.isCAFAny || !!f.isCAF;
+    cur.wins += parseInt(f.wins || 0, 10);
+    cur.losses += parseInt(f.losses || 0, 10);
+    cur.draws += parseInt(f.draws || 0, 10);
+    cur.koWins += parseInt(f.koWins || 0, 10);
   });
 
-  // return sorted array to maintain consistency
-  return Object.values(combinedMap).sort((a, b) => a.name.localeCompare(b.name));
+  // ✅ Store cache
+  _combinedCache = Object.values(combinedMap).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+  _combinedCacheKey = key;
+
+  return _combinedCache;
+}
+
+// ✅ Returns a Set of fighter IDs who have fought in Season 3
+function getSeason3ActiveIdSet() {
+  const set = new Set();
+
+  (Array.isArray(season3Fights) ? season3Fights : []).forEach(f => {
+    if (f?.fighter1) set.add(f.fighter1);
+    if (f?.fighter2) set.add(f.fighter2);
+  });
+
+  return set;
 }
 
   
@@ -1563,34 +2200,35 @@ badges.sort((a, b) => {
   /* Recompute title defenses from fights (updates champions.*Defenses and last defense in memory only)
      Note: this function computes counts locally; saving to Firestore is done via the admin UI save function.
   */
-  function recomputeTitleDefensesFromFights(){
-    // reset counters
-    let worldDefenses = 0, cafDefenses = 0;
-    let worldLast = '', cafLast = '';
-  
-    // for each fight, if champion participated and champion won and fight has a date -> count as defense
-    fights.forEach(f=>{
-      if(!f.date) return;
-      if(champions.uflWorld && (f.fighter1 === champions.uflWorld || f.fighter2 === champions.uflWorld)){
-        if(f.winner === champions.uflWorld) {
-          worldDefenses++;
-          if(!worldLast || new Date(f.date) > new Date(worldLast)) worldLast = f.date;
-        }
+  function recomputeTitleDefensesFromFights(fightList){
+  const list = Array.isArray(fightList) ? fightList : fights; // fallback
+
+  // reset counters
+  let worldDefenses = 0, cafDefenses = 0;
+  let worldLast = '', cafLast = '';
+
+  list.forEach(f=>{
+    if(!f.date) return;
+    if(champions.uflWorld && (f.fighter1 === champions.uflWorld || f.fighter2 === champions.uflWorld)){
+      if(f.winner === champions.uflWorld) {
+        worldDefenses++;
+        if(!worldLast || new Date(f.date) > new Date(worldLast)) worldLast = f.date;
       }
-      if(champions.uflCAF && (f.fighter1 === champions.uflCAF || f.fighter2 === champions.uflCAF)){
-        if(f.winner === champions.uflCAF) {
-          cafDefenses++;
-          if(!cafLast || new Date(f.date) > new Date(cafLast)) cafLast = f.date;
-        }
+    }
+    if(champions.uflCAF && (f.fighter1 === champions.uflCAF || f.fighter2 === champions.uflCAF)){
+      if(f.winner === champions.uflCAF) {
+        cafDefenses++;
+        if(!cafLast || new Date(f.date) > new Date(cafLast)) cafLast = f.date;
       }
-    });
-  
-    // update local champions object (not writing to Firestore automatically)
-    champions.uflWorldDefenses = worldDefenses;
-    champions.uflWorldLastDefense = worldLast || champions.uflWorldLastDefense || '';
-    champions.uflCAFDefenses = cafDefenses;
-    champions.uflCAFLastDefense = cafLast || champions.uflCAFLastDefense || '';
-  }
+    }
+  });
+
+  champions.uflWorldDefenses = worldDefenses;
+  champions.uflWorldLastDefense = worldLast || champions.uflWorldLastDefense || '';
+  champions.uflCAFDefenses = cafDefenses;
+  champions.uflCAFLastDefense = cafLast || champions.uflCAFLastDefense || '';
+}
+
   
   /* Export some helpers for other parts */
   window.buildCombinedMap = buildCombinedMap;
@@ -1599,6 +2237,454 @@ badges.sort((a, b) => {
   window.countConsecutiveLosses = countConsecutiveLosses;
   window.computeBadgesForCombined = computeBadgesForCombined;
   window.recomputeTitleDefensesFromFights = recomputeTitleDefensesFromFights;
+  
+  /* ===========================
+   🏛️ BUILD LEGACY FIGHTER DATA
+   =========================== */
+
+   function renderLegacyFightListHTML(fightList, ids) {
+  const sorted = (fightList || []).slice().sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  return `
+    <div style="display:grid; gap:8px;">
+      ${sorted.map(f => {
+        const oppId = ids.includes(f.fighter1) ? f.fighter2 : f.fighter1;
+        const oppName =
+          (fighters.find(x => x.id === oppId)?.name) ||
+          (ids.includes(f.fighter1) ? f.fighter2Name : f.fighter1Name) ||
+          'Unknown';
+
+        const result =
+          (f.winner === '0' || f.winner === 0) ? 'Draw' :
+          ids.includes(f.winner) ? 'Win' : 'Loss';
+
+        return `
+          <div class="frosted" style="padding:10px;border-radius:10px;">
+            <div style="display:flex;justify-content:space-between;gap:10px;">
+              <div><strong>${formatDateShort(f.date)}</strong> — vs <strong>${escapeHtml(oppName)}</strong></div>
+              <div style="font-weight:700;">${result}</div>
+            </div>
+            <div class="small-muted">${escapeHtml(f.method || '')} ${f.platform ? `• ${escapeHtml(f.platform)}` : ''}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+
+
+function buildLegacyFighterData(combined) {
+  const ids = combined.ids || [];
+
+  // ---- Season 1 record (from settings/legacyS1)
+  const nameKey = (combined.name || '').trim().toLowerCase();
+
+// ✅ Apply manual override if present for a season record
+function applyManualOverride(seasonNum, fallback) {
+  const man = legacyManualRecords?.[nameKey]?.[seasonNum];
+  if (!man) return fallback;
+  return {
+    w: +man.w || 0,
+    l: +man.l || 0,
+    d: +man.d || 0
+  };
+}
+
+
+
+// ---- Legacy champion history (titles & defenses)
+// ---- Legacy champion history (titles & defenses)
+// Supports either fighterKey OR fighterName in the reign docs
+const reigns = (Array.isArray(legacyTitleReigns) ? legacyTitleReigns : []).filter(r => {
+  const k = (r.fighterKey || '').toString().trim().toLowerCase();
+  const n = (r.fighterName || '').toString().trim().toLowerCase();
+  return k === nameKey || n === nameKey;
+});
+
+const championships = reigns.length;
+
+// ✅ Sort Championship Resume: by Season, then by wonDate
+reigns.sort((a, b) => {
+  const sa = +a.season || 999;
+  const sb = +b.season || 999;
+  if (sa !== sb) return sa - sb;
+
+  const da = a.wonDate ? new Date(a.wonDate).getTime() : 0;
+  const db = b.wonDate ? new Date(b.wonDate).getTime() : 0;
+  return da - db;
+});
+
+
+// Flatten defenses for defense history modal
+const defensesFlat = reigns.flatMap(r => {
+  const defs = Array.isArray(r.defenses) ? r.defenses : [];
+  return defs.map(d => ({
+    date: d.date || '',
+    opponent: d.opponent || '',
+    event: d.event || (r.title ? `${r.title} Defense` : 'Title Defense'),
+    method: d.method || ''
+  }));
+});
+
+const defensesCount = defensesFlat.length;
+
+
+
+  const s1Raw = legacyS1Records?.[nameKey] || null;
+  const s1 = s1Raw
+    ? { w: +s1Raw.w || 0, l: +s1Raw.l || 0, d: +s1Raw.d || 0 }
+    : { w: 0, l: 0, d: 0 };
+
+  const s1FightCount = (s1.w + s1.l + s1.d) || 0;
+
+  const fmtRecord = (r) => `${r.w}–${r.l}${r.d ? `–${r.d}` : ''}`;
+
+  // ---- Pull S2 + S3 fights from allFights
+  const fighterFights = (Array.isArray(allFights) ? allFights : []).filter(f =>
+    ids.includes(f.fighter1) || ids.includes(f.fighter2)
+  );
+
+  // Prefer explicit tagging; fall back to year split if needed
+  const s2Fights = fighterFights.filter(f => f.legacy === true || f.season === 2 || new Date(f.date).getFullYear() === 2024);
+  const s3Fights = fighterFights.filter(f => (f.legacy !== true) && (f.season === 3 || f.season == null) && new Date(f.date).getFullYear() !== 2024);
+
+  function recordFor(fightsArr) {
+  let w = 0, l = 0, d = 0;
+
+  (fightsArr || []).forEach(f => {
+    const raw = f?.winner;
+    const winStr = (raw == null ? '' : String(raw)).trim().toLowerCase();
+
+    const isDraw =
+      raw === 0 ||
+      raw === '0' ||
+      winStr === 'draw' ||
+      winStr === 'd' ||
+      winStr === '' ||
+      winStr === 'tie';
+
+    if (isDraw) {
+      d++;
+      return;
+    }
+
+    if (ids.includes(raw)) w++;
+    else l++;
+  });
+
+  return { w, l, d };
+}
+
+
+const s2 = recordFor(s2Fights);
+const s3 = recordFor(s3Fights);
+
+// ✅ Final season records (manual override wins)
+const s1Final = applyManualOverride(1, s1);
+const s2Final = applyManualOverride(2, s2);
+const s3Final = applyManualOverride(3, s3);
+
+// ✅ ALL-TIME now includes S1 too
+const allW = s1Final.w + s2Final.w + s3Final.w;
+const allL = s1Final.l + s2Final.l + s3Final.l;
+const allD = s1Final.d + s2Final.d + s3Final.d;
+
+// ✅ ALL-TIME fights now includes S1 fight count too
+const allFightCount = ((s1Final.w + s1Final.l + s1Final.d) + fighterFights.length);
+
+
+  // ---- Season tab headers (record at top)
+  const s2Header = `<div class="legacy-record-header" style="margin-bottom:8px;">
+    <strong>Season 2 Record:</strong> ${fmtRecord(s2Final)} &nbsp;•&nbsp; <strong>Fights:</strong> ${s2Fights.length}
+  </div>`;
+
+  const s3Header = `<div class="legacy-record-header" style="margin-bottom:8px;">
+    <strong>Season 3 Record:</strong> ${fmtRecord(s3Final)} &nbsp;•&nbsp; <strong>Fights:</strong> ${s3Fights.length}
+  </div>`;
+
+  const s1Header = `<div class="legacy-record-header" style="margin-bottom:8px;">
+    <strong>Season 1 Record:</strong> ${fmtRecord(s1Final)} &nbsp;•&nbsp; <strong>Fights:</strong> ${s1FightCount}
+  </div>`;
+
+  // ---- CAREER tab plan: quick at-a-glance season breakdown + placeholder for accolades
+  // ---- CAREER tab: show accolades (titles/defenses) + season breakdown
+const reignLines = reigns.length
+  ? reigns.map(r => {
+      const season = r.season ? `S${r.season}` : '—';
+      const title = escapeHtml(r.title || 'Title');
+      const defCount = Array.isArray(r.defenses) ? r.defenses.length : (+r.defenses || 0);
+      const won = r.wonDate ? formatDateShort(r.wonDate) : '';
+      const lost = r.lostDate ? formatDateShort(r.lostDate) : 'Present';
+      const dateLine = (won || r.lostDate) ? `<div class="small-muted" style="margin-top:2px;">${won || '—'} → ${lost}</div>` : '';
+      return `<li style="margin-bottom:6px;">
+        <div><strong>${title}</strong> — ${season} (${defCount} defenses)</div>
+        ${dateLine}
+      </li>`;
+    }).join('')
+  : `<li class="small-muted">No recorded championships.</li>`;
+
+const careerHTML = `
+  <div style="display:grid; gap:12px;">
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+      <div class="frosted" style="padding:12px;">
+        <div style="font-weight:800; color:var(--gold); margin-bottom:8px;">All-Time</div>
+        <div style="font-size:16px; line-height:1.3;">
+          <strong>${allW}–${allL}${allD ? `–${allD}` : ''}</strong>
+          <span class="small-muted">(${allFightCount} fights)</span>
+        </div>
+        <div style="margin-top:6px;">
+          <strong>Titles:</strong> ${championships} &nbsp;•&nbsp;
+          <strong>Defenses:</strong> ${defensesCount}
+        </div>
+      </div>
+
+      <div class="frosted" style="padding:12px;">
+        <div style="font-weight:800; color:var(--gold); margin-bottom:8px;">Season Breakdown</div>
+        <div><strong>S1:</strong> ${fmtRecord(s1Final)} (${(s1Final.w + s1Final.l + s1Final.d)})</div>
+        <div><strong>S2:</strong> ${fmtRecord(s2Final)} (${s2Fights.length})</div>
+        <div><strong>S3:</strong> ${fmtRecord(s3Final)} (${s3Fights.length})</div>
+      </div>
+    </div>
+
+    <div class="frosted" style="padding:12px;">
+      <div style="font-weight:800; color:var(--gold); margin-bottom:8px;">Championship Resume</div>
+      <ul style="margin:0; padding-left:18px;">
+        ${reignLines}
+      </ul>
+      <div class="small-muted" style="margin-top:8px;">
+        Tip: Click the <strong>Titles</strong> box above to view reigns.
+      </div>
+    </div>
+
+  </div>
+`;
+
+
+  return {
+    name: combined.name,
+    seasons: [1, 2, 3], // keep tabs consistent even if empty
+    allTime: {
+  record: `${allW}–${allL}${allD ? `–${allD}` : ''}`,
+  fights: allFightCount,
+  championships: championships,
+  defenses: defensesCount
+},
+defenses: defensesFlat,
+reigns: reigns,
+
+    seasonData: {
+      career: careerHTML,
+
+      // S1 has record, but no fight list data
+      s1: s1Header + (
+        s1FightCount
+          ? `<p><strong>Season 1 fight list not available</strong></p>`
+          : `<p>No Season 1 record found.</p>`
+      ),
+
+      // S2/S3: record header + full list
+      s2: (s2Fights.length ? (s2Header + renderLegacyFightListHTML(s2Fights, ids)) : (s2Header + `<p>No Season 2 fights found.</p>`)),
+      s3: (s3Fights.length ? (s3Header + renderLegacyFightListHTML(s3Fights, ids)) : (s3Header + `<p>No Season 3 fights found.</p>`))
+    }
+  };
+}
+
+
+  /* ===========================
+   🏛️ LEGACY MODAL (DEV ONLY)
+   =========================== */
+
+const mockLegacyFighter = {
+  name: "Donny",
+  seasons: [1, 2, 3],
+  allTime: {
+    record: "39–11–1",
+    fights: 51,
+    championships: 4,
+    defenses: 6
+  },
+
+  defenses: [
+    {
+      date: "2024-08-12",
+      opponent: "Ipro",
+      event: "UFL Fight Night 18",
+      method: "TKO (R5)"
+    },
+    {
+      date: "2024-09-30",
+      opponent: "Zedr",
+      event: "UFL Championship Series",
+      method: "UD"
+    }
+  ],
+
+  seasonData: {
+    career: `<p>One of the defining fighters in UFL history.</p>`,
+    s1: `<p><strong>Record:</strong> 12–3–1<br/>Fight data unavailable.</p>`,
+    s2: `<p><strong>Record:</strong> 18–6–0</p>`,
+    s3: `<p><strong>Record:</strong> 9–2–0</p>`
+  }
+};
+
+function openLegacyFighterModal(data) {
+  $('legacy-name').textContent = data.name;
+  $('legacy-sub').textContent = `Seasons: ${data.seasons.map(s=>'S'+s).join(' • ')}`;
+
+  $('legacy-summary').innerHTML = `
+  <div class="legacy-stat"><strong>${data.allTime.record}</strong><br/>All-Time</div>
+  <div class="legacy-stat"><strong>${data.allTime.fights}</strong><br/>Fights</div>
+
+  <div class="legacy-stat legacy-click" onclick="openTitleReignsModal(window._legacyReigns)">
+    <strong>${data.allTime.championships}</strong><br/>Titles
+  </div>
+
+  <div class="legacy-stat legacy-click" onclick="openDefenseHistoryModal(window._legacyReigns)">
+    <strong>${data.allTime.defenses}</strong><br/>Defenses
+  </div>
+`;
+
+
+  window._legacyDefenses = data.defenses || [];
+
+  window._legacyReigns = data.reigns || [];
+
+
+  window._legacyTabs = data.seasonData;
+  switchLegacyTab('career');
+  $('legacy-modal-backdrop').classList.remove('hidden');
+}
+
+function closeLegacyFighterModal() {
+  $('legacy-modal-backdrop').classList.add('hidden');
+}
+
+function switchLegacyTab(key) {
+  document.querySelectorAll('.legacy-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`.legacy-tab[onclick*="${key}"]`)?.classList.add('active');
+  $('legacy-content').innerHTML = window._legacyTabs[key] || '';
+}
+
+/* ===========================
+   🏆 TITLE DEFENSE HISTORY
+   =========================== */
+
+   function openDefenseHistoryModal(reigns) {
+  const container = $('defense-history-list');
+
+  const list = Array.isArray(reigns) ? reigns.slice() : [];
+
+  if (list.length === 0) {
+    container.innerHTML = `<p>No recorded title defenses.</p>`;
+    $('defense-modal-backdrop')?.classList.remove('hidden');
+    return;
+  }
+
+  // ✅ Sort reigns by Season, then wonDate
+  list.sort((a, b) => {
+    const sa = +a.season || 999;
+    const sb = +b.season || 999;
+    if (sa !== sb) return sa - sb;
+
+    const da = a.wonDate ? new Date(a.wonDate).getTime() : 0;
+    const db = b.wonDate ? new Date(b.wonDate).getTime() : 0;
+    return da - db;
+  });
+
+  const html = list.map(r => {
+    const title = escapeHtml(r.title || 'Title');
+    const season = r.season ? `S${r.season}` : '—';
+
+    const defs = Array.isArray(r.defenses) ? r.defenses.slice() : [];
+
+    // sort defenses by date ascending
+    defs.sort((a, b) => {
+      const da = a.date ? new Date(a.date).getTime() : 0;
+      const db = b.date ? new Date(b.date).getTime() : 0;
+      return da - db;
+    });
+
+    if (defs.length === 0) {
+      return `
+        <div style="margin-bottom:14px;">
+          <div style="font-weight:800; color:var(--gold); margin-bottom:6px;">
+            ${title} — ${season}
+          </div>
+          <div class="small-muted">No recorded defenses for this reign.</div>
+        </div>
+      `;
+    }
+
+    const rows = defs.map(d => `
+      <div class="defense-row">
+        <div>${formatDateShort(d.date)}</div>
+        <div><strong>${escapeHtml(d.opponent || '')}</strong></div>
+        <div>${escapeHtml(d.method || '')}</div>
+      </div>
+    `).join('');
+
+    return `
+      <div style="margin-bottom:14px;">
+        <div style="font-weight:800; color:var(--gold); margin-bottom:6px;">
+          ${title} — ${season}
+        </div>
+        ${rows}
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = html;
+  $('defense-modal-backdrop')?.classList.remove('hidden');
+}
+
+
+function closeDefenseHistoryModal() {
+  $('defense-modal-backdrop').classList.add('hidden');
+}
+
+ 
+function openTitleReignsModal(reigns) {
+  const container = $('reigns-history-list');
+  const list = (Array.isArray(reigns) ? reigns : []).slice().sort((a,b) => {
+  const sa = +a.season || 999;
+  const sb = +b.season || 999;
+  if (sa !== sb) return sa - sb;
+  const da = a.wonDate ? new Date(a.wonDate).getTime() : 0;
+  const db = b.wonDate ? new Date(b.wonDate).getTime() : 0;
+  return da - db;
+});
+
+
+  if (list.length === 0) {
+    container.innerHTML = `<p>No recorded title reigns.</p>`;
+  } else {
+    container.innerHTML = list.map(r => {
+      const defCount = Array.isArray(r.defenses) ? r.defenses.length : (+r.defenses || 0);
+      const won = r.wonDate ? formatDateShort(r.wonDate) : '—';
+      const lost = r.lostDate ? formatDateShort(r.lostDate) : 'Present';
+      const season = r.season ? `S${r.season}` : '—';
+      const title = escapeHtml(r.title || 'Title');
+      return `
+        <div class="defense-row" style="grid-template-columns: 120px 1fr 120px;">
+          <div><strong>${season}</strong><br/><span class="small-muted">${won} → ${lost}</span></div>
+          <div><strong>${title}</strong><br/><span class="small-muted">${escapeHtml(r.fighterName || '')}</span></div>
+          <div><strong>${defCount}</strong><br/><span class="small-muted">Defenses</span></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  $('reigns-modal-backdrop')?.classList.remove('hidden');
+}
+
+function closeTitleReignsModal() {
+  $('reigns-modal-backdrop')?.classList.add('hidden');
+}
+
+
+
   </script>
   <!-- END Part 3 of 6 -->
 <!-- START Part 4 of 6 -->
@@ -1922,132 +3008,112 @@ function countCAFFights() {
   console.log(`🥋 CAF fights detected: ${totalCAF}`);
 }
 
- function computeRankings(tab = window.currentTab || "world") {
+function computeRankings(tab = window.currentTab || "world") {
   const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
 
-  // 🚫 Exclude retired fighters and champions
-  // 🚫 Exclude retired fighters and region-specific champions
-const activeOnly = combined.filter(f => {
-  const main = fighters.find(x => x.id === f.idMain);
+  // ✅ Season 3 ACTIVE fighter ids = anyone who appears in current fights[]
+  // (your listener already sets fights = season3Fights, so this is S3-only)
+  const activeIds = new Set();
+  (Array.isArray(fights) ? fights : []).forEach(ft => {
+    if (ft?.fighter1) activeIds.add(ft.fighter1);
+    if (ft?.fighter2) activeIds.add(ft.fighter2);
+  });
 
-  // Determine which tab we’re rendering from the global "currentTab" variable
-  // (this variable is set by your switchTab('world'/'rbc'/'abc') function)
- // const tab = window.currentTab || "world";
-  let isChampion = false;
+  // ✅ Keep ONLY fighters who actually fought in Season 3
+  const season3Only = combined.filter(f =>
+    Array.isArray(f.ids) && f.ids.some(id => activeIds.has(id))
+  );
 
-  // 🥇 WORLD TAB — exclude only UFL + CAF champs
-  if (tab === "world") {
-    isChampion =
-      (champions?.uflWorld && f.ids.includes(champions.uflWorld)) ||
-      (champions?.uflCAF && f.ids.includes(champions.uflCAF));
-  }
+  // 🚫 Exclude retired fighters and champions (on the Season-3-only pool)
+  const activeOnly = season3Only.filter(f => {
+    const main = fighters.find(x => x.id === f.idMain);
+    let isChampion = false;
 
- // Exclude region champions from their own tabs
-// Exclude region champions from their own tabs
-if (tab === "rbc") {
-  if (champions?.rbc && f.ids.includes(champions.rbc)) {
-    isChampion = true;
-  }
-}
+    // 🥇 WORLD TAB — exclude only UFL + CAF champs
+    if (tab === "world") {
+      isChampion =
+        (champions?.uflWorld && f.ids.includes(champions.uflWorld)) ||
+        (champions?.uflCAF && f.ids.includes(champions.uflCAF));
+    }
 
-if (tab === "abc") {
-  if (champions?.abc && f.ids.includes(champions.abc)) {
-    isChampion = true;
-  }
-}
+    // 🏴‍☠️ RBC TAB — exclude RBC champ
+    if (tab === "rbc") {
+      if (champions?.rbc && f.ids.includes(champions.rbc)) isChampion = true;
+    }
 
+    // 🦅 ABC TAB — exclude ABC champ
+    if (tab === "abc") {
+      if (champions?.abc && f.ids.includes(champions.abc)) isChampion = true;
+    }
 
-
-
-  return !main?.retired && !isChampion;
-});
-
-// --- 1) Compute base points for WORLD/CAF with correct CAF filtering ---
-activeOnly.forEach(f => {
-  try {
-    // Build the list of fights that involve this fighter
-    const relevantFights = (Array.isArray(fights) ? fights : []).filter(ft => {
-      const involved = ft.fighter1 === f.id || ft.fighter2 === f.id;
-      if (!involved) return false;
-
-      // ✅ Exclude CAF fights when computing WORLD points
-      // Only include CAF fights when computing CAF rankings later
-      return !ft.caf;  // this means "only non-CAF fights"
-    });
-
-    // Calculate points using only the non-CAF fights
-    const pts = calcPointsWithFightsForIds(f.ids, relevantFights);
-    f.points = pts;
-  } catch (err) {
-    console.error("calculateRankPoints error for world:", err);
-    f.points = 0;
-  }
-});
-
-  // sort descending
-  activeOnly.sort((a, b) => b.points - a.points);
-
-  // original world & caf
-  const world = activeOnly.filter(f => !f.isCAFAny);
-const caf   = activeOnly.filter(f => f.isCAFAny);
+    return !main?.retired && !isChampion;
+  });
 
   // --- Helper: safely call calculateRankPoints with a filtered fights list ---
   function calcPointsWithFightsForIds(ids, fightsSubset) {
-    // preserve original global fights reference
-    const originalFights = (typeof fights !== 'undefined') ? fights : undefined;
+    const originalFights = (typeof window !== 'undefined') ? window.fights : fights;
     try {
-      // temporarily shadow/replace the global fights array so calculateRankPoints operates only on region fights
-      if (typeof window !== 'undefined') {
-        // browser global
-        window.fights = fightsSubset;
-      } else {
-        // node-like environment fallback
-        fights = fightsSubset;
-      }
-      // call the same API as original; pass ids (same signature as your code uses)
+      if (typeof window !== 'undefined') window.fights = fightsSubset;
+      else fights = fightsSubset;
       return calculateRankPoints(ids);
     } catch (err) {
       console.error("calcPointsWithFightsForIds error:", err);
       return 0;
     } finally {
-      // restore original fights array
-      if (typeof window !== 'undefined') {
-        window.fights = originalFights;
-      } else {
-        fights = originalFights;
-      }
+      if (typeof window !== 'undefined') window.fights = originalFights;
+      else fights = originalFights;
     }
   }
 
-  // --- 2) Build RBC (EU vs EU) using only region fights ---
-  const rbcFights = (Array.isArray(fights) ? fights : [])
-    .filter(ft => {
-      const f1 = fighters.find(x => x.id === ft.fighter1);
-      const f2 = fighters.find(x => x.id === ft.fighter2);
-      return f1?.region === 'EU' && f2?.region === 'EU';
-    });
+  // --- 1) WORLD points using ONLY non-CAF fights ---
+  activeOnly.forEach(f => {
+    try {
+      const relevantFights = (Array.isArray(fights) ? fights : []).filter(ft => {
+        const involved = f.ids.includes(ft.fighter1) || f.ids.includes(ft.fighter2);
+        if (!involved) return false;
+        return !ft.caf; // exclude CAF fights from world points
+      });
+
+      const pts = calcPointsWithFightsForIds(f.ids, relevantFights);
+      f.points = pts;
+    } catch (err) {
+      console.error("calculateRankPoints error for world:", err);
+      f.points = 0;
+    }
+  });
+
+  // sort descending
+  activeOnly.sort((a, b) => b.points - a.points);
+
+  // WORLD vs CAF split
+  const world = activeOnly.filter(f => !f.isCAFAny);
+  const caf   = activeOnly.filter(f => f.isCAFAny);
+
+  // --- 2) RBC fights only (EU vs EU) ---
+  const rbcFights = (Array.isArray(fights) ? fights : []).filter(ft => {
+    const f1 = fighters.find(x => x.id === ft.fighter1);
+    const f2 = fighters.find(x => x.id === ft.fighter2);
+    return f1?.region === 'EU' && f2?.region === 'EU';
+  });
 
   const rbcFightIds = [...new Set(rbcFights.flatMap(ft => [ft.fighter1, ft.fighter2]))];
 
   const rbc = activeOnly
     .filter(f => f.ids.some(id => rbcFightIds.includes(id)))
     .map(f => {
-      // only use the fighter ids that actually participated in region fights
       const relevantIds = f.ids.filter(id => rbcFightIds.includes(id));
-      // calculate points using only rbcFights (temporary swap)
       const pts = calcPointsWithFightsForIds(relevantIds, rbcFights);
       return { ...f, points: pts };
     })
     .sort((a, b) => b.points - a.points)
     .slice(0, 15);
 
-  // --- 3) Build ABC (NA vs NA) using only region fights ---
-  const abcFights = (Array.isArray(fights) ? fights : [])
-    .filter(ft => {
-      const f1 = fighters.find(x => x.id === ft.fighter1);
-      const f2 = fighters.find(x => x.id === ft.fighter2);
-      return f1?.region === 'NA' && f2?.region === 'NA';
-    });
+  // --- 3) ABC fights only (NA vs NA) ---
+  const abcFights = (Array.isArray(fights) ? fights : []).filter(ft => {
+    const f1 = fighters.find(x => x.id === ft.fighter1);
+    const f2 = fighters.find(x => x.id === ft.fighter2);
+    return f1?.region === 'NA' && f2?.region === 'NA';
+  });
 
   const abcFightIds = [...new Set(abcFights.flatMap(ft => [ft.fighter1, ft.fighter2]))];
 
@@ -2061,15 +3127,9 @@ const caf   = activeOnly.filter(f => f.isCAFAny);
     .sort((a, b) => b.points - a.points)
     .slice(0, 15);
 
-  // --- Debugging output (remove when confirmed) ---
-  console.log("computeRankings: world count", world.length, "caf", caf.length, "rbc", rbc.length, "abc", abc.length);
-  // list top names for quick check
-  console.log("RBC top names:", rbc.map(x => x.name).slice(0,10));
-  console.log("ABC top names:", abc.map(x => x.name).slice(0,10));
-
-  // ✅ return all four
-  return { world, rbc, abc, caf,  };
+  return { world, rbc, abc, caf };
 }
+
 
 
 
@@ -2436,6 +3496,79 @@ function refreshRankings() {
   renderAll();
   alert('Rankings refreshed!');
 }
+
+
+/* ===========================
+   🏛️ LEGACY FIGHTER LIST
+   =========================== */
+
+   function renderLegacyFighterList() {
+  const container = document.getElementById('legacy-fighter-list');
+  if (!container) return;
+
+  const q = (document.getElementById('legacy-search')?.value || '').trim().toLowerCase();
+
+  // ✅ Alphabetical sort
+// ✅ Alphabetical base list (Season 3 combined fighters)
+const base = (buildCombinedMap?.() || []).slice();
+
+// ✅ Add Season 1-only fighters from legacyS1Records (settings/legacyS1)
+const s1Extras = Object.values(legacyS1Records || {}).map(r => ({
+  name: (r.name || r.playerName || '').trim(),
+  ids: [],         // no S3 fighter ids
+  wins: 0, losses: 0, draws: 0, koWins: 0,
+  idMain: null,
+  points: 0
+})).filter(x => x.name);
+
+// ✅ Add manual-entry fighters (Season 1-only, etc.)
+const manualNames = (typeof getLegacyManualNames === 'function') ? (getLegacyManualNames() || []) : [];
+const manualExtras = manualNames.map(n => ({
+  name: (n || '').trim(),
+  ids: [],         // no S3 fighter ids
+  wins: 0, losses: 0, draws: 0, koWins: 0,
+  idMain: null,
+  points: 0
+})).filter(x => x.name);
+
+// ✅ Merge base + s1Extras + manualExtras uniquely by nameKey
+const combined = [...base, ...s1Extras, ...manualExtras]
+  .reduce((acc, cur) => {
+    const k = (cur.name || '').trim().toLowerCase();
+    if (!k) return acc;
+    if (!acc.map[k]) { acc.map[k] = cur; acc.list.push(cur); }
+    return acc;
+  }, { map: {}, list: [] }).list
+  .sort((a,b)=> (a.name || '').localeCompare((b.name || ''), undefined, { sensitivity:'base' }));
+
+
+
+  combined.forEach(f => {
+    const nameLower = (f.name || '').toLowerCase();
+    if (q && !nameLower.includes(q)) return;
+
+    // Build legacy data to get all-time record
+    const data = buildLegacyFighterData(f);
+
+    const row = document.createElement('div');
+    row.className = 'legacy-fighter-row';
+    row.innerHTML = `
+      <div class="legacy-name">${data.name}</div>
+      <div class="legacy-meta">
+        <strong>${data.allTime.record}</strong>
+      </div>
+    `;
+
+    row.onclick = () => openLegacyFighterModal(data);
+
+    container.appendChild(row);
+  });
+}
+
+
+
+
+
   </script>
   <!-- END Part 4 of 6 -->
 <!-- START Part 5 of 6 -->
@@ -2795,6 +3928,16 @@ content.style.scrollBehavior = 'smooth';
   <button onclick="closeFighterModal()" style="background:none;border:0;color:#fff;font-size:18px;cursor:pointer;">✖</button>
 </div>
 
+<div class="player-record-top" style="
+  font-size:22px;
+  font-weight:800;
+  color: var(--gold);
+  margin: 8px 0 14px;
+">
+  ${totalWins}–${totalLosses}${totalDraws ? `–${totalDraws}` : ''}
+</div>
+
+
       <div class="fighter-badges">
         ${badges.map(b => `<span class="badge" onclick="showBadgeDesc('${b.desc}')">${b.icon}</span>`).join('')}
 
@@ -2865,42 +4008,45 @@ function showBadgeDesc(desc) { const existing = document.getElementById('badge-d
   
   /* Simple tab switcher (ensures one visible at all times) */
   function switchTab(tab) {
-  const tabs = ['home', 'world', 'rbc', 'abc', 'players', 'fights', 'admin'];
+  const tabs = ['home', 'world', 'rbc', 'abc', 'fights', 'legacy', 'admin'];
+
+  // ✅ track whether legacy is active (for perf)
+  _legacyActive = (tab === 'legacy');
 
   tabs.forEach(t => {
     const el = document.getElementById(t + '-tab');
     const btn = document.getElementById('btn-' + t);
 
-    if (el) {
-      el.classList.toggle('hidden', t !== tab);
-    }
-    if (btn) {
-      btn.classList.toggle('tab-active', t === tab);
-    }
+    if (el) el.classList.toggle('hidden', t !== tab);
+    if (btn) btn.classList.toggle('tab-active', t === tab);
   });
 
   // 🔧 Render only the active tab’s content
   switch (tab) {
-    case 'players':
-      renderPlayers();
-      break;
+ 
     case 'fights':
-      renderFights();
+      renderFights?.();
       break;
     case 'admin':
-      renderAdmin();
+      renderAdmin?.();
+      break;
+    case 'legacy':
+      // ✅ only render legacy list when you open the legacy tab
+      renderLegacyFighterList?.();
       break;
     default:
-      renderAll(); // For home, world, rbc, abc, caf
+      // ✅ throttle heavy rerenders
+      scheduleRenderAll?.();
       break;
   }
 }
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
   switchTab('home');
 });
+
+
+
 
 
 /* ===============================
@@ -3036,36 +4182,61 @@ function closePlayerCard() {
   }
   
   /* Populate admin fights dropdown (input order = firestore order assumed) */
-  function populateAdminFightsDropdown(){
-    const sel = $('admin-fights-dropdown');
-    if(!sel) return;
-    sel.innerHTML = '';
-    // list by creation order if stored, else reverse date order -> we'll use current fights array reverse to approximate input order
-    fights.slice().reverse().forEach(f=>{
-      const n1 = fighters.find(x=>x.id===f.fighter1)?.name || 'Unknown';
-      const n2 = fighters.find(x=>x.id===f.fighter2)?.name || 'Unknown';
-      const opt = document.createElement('option');
-      opt.value = f.id;
-      opt.text = `${formatDateShort(f.date)} — ${n1} vs ${n2}`;
-      sel.appendChild(opt);
-    });
+ /* Populate admin fights dropdown (Season 3 only — ignore legacy) */
+function populateAdminFightsDropdown() {
+  const sel = $('admin-fights-dropdown');
+  if (!sel) return;
+
+  // ✅ Use the same source logic as populateAdminFightsList()
+  const adminFightSource = (allFights || []).filter(f =>
+    f.legacy !== true && (f.season === 3 || typeof f.season === 'undefined' || f.season === null)
+  );
+
+  sel.innerHTML = '';
+
+  // optional placeholder
+  if (adminFightSource.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.text = 'No Season 3 fights found';
+    sel.appendChild(opt);
+    return;
   }
+
+  adminFightSource.slice().reverse().forEach(f => {
+    const n1 = fighters.find(x => x.id === f.fighter1)?.name || f.fighter1Name || 'Unknown';
+    const n2 = fighters.find(x => x.id === f.fighter2)?.name || f.fighter2Name || 'Unknown';
+
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.text = `${formatDateShort(f.date)} — ${n1} vs ${n2}`;
+    sel.appendChild(opt);
+  });
+}
+
   
   /* Populate admin fights visual list */
   function populateAdminFightsList(){
-    const container = $('admin-fights-list');
-    if(!container) return;
-    container.innerHTML = '';
-    fights.slice().reverse().forEach(f=>{
-      const n1 = fighters.find(x=>x.id===f.fighter1)?.name || 'Unknown';
-      const n2 = fighters.find(x=>x.id===f.fighter2)?.name || 'Unknown';
-      const d = document.createElement('div');
-      d.style.padding = '8px';
-      d.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
-      d.innerHTML = `<strong>${formatDateShort(f.date)}</strong> — ${escapeHtml(n1)} vs ${escapeHtml(n2)} <span class="small-muted">[${escapeHtml(f.platform||'')}]</span>`;
-      container.appendChild(d);
-    });
-  }
+  const container = $('admin-fights-list');
+  if(!container) return;
+  container.innerHTML = '';
+
+  // ✅ Admin fights source: Season 3 only (ignore legacy)
+  const adminFightSource = (allFights || []).filter(f =>
+    f.legacy !== true && (f.season === 3 || typeof f.season === 'undefined' || f.season === null)
+  );
+
+  adminFightSource.slice().reverse().forEach(f=>{
+    const n1 = fighters.find(x=>x.id===f.fighter1)?.name || f.fighter1Name || 'Unknown';
+    const n2 = fighters.find(x=>x.id===f.fighter2)?.name || f.fighter2Name || 'Unknown';
+    const d = document.createElement('div');
+    d.style.padding = '8px';
+    d.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+    d.innerHTML = `<strong>${formatDateShort(f.date)}</strong> — ${escapeHtml(n1)} vs ${escapeHtml(n2)} <span class="small-muted">[${escapeHtml(f.platform||'')}]</span>`;
+    container.appendChild(d);
+  });
+}
+
   
   /* Populate champion title selects in admin UI */
   function populateChampionTitleSelects(){
@@ -3219,7 +4390,80 @@ if (['uflWorld', 'uflIntercontinental', 'rbc', 'abc'].includes(field)) {
   }
 }
 
+function parseLegacyRows(text) {
+  const lines = (text || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) return {};
+
+  const out = {};
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // skip header row if it contains WIN/LOSS/DRAW
+    if (i === 0 && /win/i.test(line) && /loss/i.test(line) && /draw/i.test(line)) continue;
+
+    // Accept tab, pipe, or comma separated
+    const parts = line.includes('\t') ? line.split('\t')
+                : line.includes('|') ? line.split('|')
+                : line.split(',');
+
+    const name = (parts[0] || '').trim();
+    const w = parseInt((parts[1] || '0').trim(), 10) || 0;
+    const l = parseInt((parts[2] || '0').trim(), 10) || 0;
+    const d = parseInt((parts[3] || '0').trim(), 10) || 0;
+    const season = parseInt((parts[4] || '1').trim(), 10) || 1;
+
+    if (!name) continue;
+    if (season !== 1) continue; // only Season 1 in this tool
+
+    const key = name.toLowerCase();
+    out[key] = { w, l, d, season: 1, name };
+  }
+  return out;
+}
+
+async function importSeason1Records() {
+  const raw = $('legacy-s1-input')?.value || '';
+  const parsed = parseLegacyRows(raw);
+
+  try {
+    await db.collection('settings').doc('legacyS1').set({ records: parsed }, { merge: true });
+    alert(`Imported Season 1 records: ${Object.keys(parsed).length}`);
+  } catch (e) {
+    console.error('importSeason1Records error', e);
+    alert('Failed to import Season 1 records.');
+  }
+}
+
+async function loadSeason1RecordsToBox() {
+  try {
+    const doc = await db.collection('settings').doc('legacyS1').get();
+    const records = doc.exists ? (doc.data().records || {}) : {};
+    const rows = Object.values(records)
+      .sort((a,b)=> (a.name||'').localeCompare(b.name||''))
+      .map(r => `${r.name}\t${r.w}\t${r.l}\t${r.d}\t1`)
+      .join('\n');
+
+    const header = `PLAYER NAME\tWIN\tLOSS\tDRAW\tSEASON\n`;
+    if ($('legacy-s1-input')) $('legacy-s1-input').value = header + rows;
+  } catch (e) {
+    console.error('loadSeason1RecordsToBox error', e);
+    alert('Failed to load Season 1 records.');
+  }
+}
+
+async function clearSeason1Records() {
+  if (!confirm('Clear ALL Season 1 records?')) return;
+  try {
+    await db.collection('settings').doc('legacyS1').set({ records: {} }, { merge: true });
+    alert('Season 1 records cleared.');
+  } catch (e) {
+    console.error('clearSeason1Records error', e);
+    alert('Failed to clear Season 1 records.');
+  }
+}
   
+
+
 /* Admin: Add Fighter */
 function adminAddFighter(){
   const name = ($('add-fighter-name')?.value || '').trim();
@@ -3462,7 +4706,106 @@ await recomputeAllFighterStats();
 }
 
 
+async function importSeason2Legacy() {
+  if (!confirm('Import Season 2 legacy data? This should only be done ONCE.')) return;
 
+  const fightersData = JSON.parse(
+    document.getElementById('legacyFightersInput').value
+  );
+
+  const fightsData = JSON.parse(
+    document.getElementById('legacyFightsInput').value
+  );
+
+  const fighterIdMap = {};
+
+  // 1️⃣ Merge fighters
+  for (const f of fightersData) {
+    const name = f.name?.trim();
+    if (!name) continue;
+
+    const existing = fighters.find(x =>
+      x.name?.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existing) {
+      fighterIdMap[f.id] = existing.id;
+    } else {
+      const ref = await db.collection('fighters').add({
+        name,
+        legacyOnly: true,
+        createdFromSeason: 2
+      });
+      fighterIdMap[f.id] = ref.id;
+    }
+  }
+
+  // 2️⃣ Import fights
+  let imported = 0;
+
+  for (const fight of fightsData) {
+    const fighter1 = fighterIdMap[fight.fighter1];
+    const fighter2 = fighterIdMap[fight.fighter2];
+    const winner = fighterIdMap[fight.winner] || null;
+
+    if (!fighter1 || !fighter2) continue;
+
+    await db.collection('fights').add({
+      ...fight,
+      fighter1,
+      fighter2,
+      winner,
+      season: 2,
+      legacy: true
+    });
+
+    imported++;
+  }
+
+  alert(`Season 2 import complete. Fights imported: ${imported}`);
+}
+
+async function saveLegacyReign(){
+  const fighterName = ($('reign-fighter')?.value || '').trim();
+  const title = ($('reign-title')?.value || '').trim();
+  const season = parseInt($('reign-season')?.value || '0', 10) || 0;
+  const wonDate = $('reign-won')?.value || '';
+  const lostDate = $('reign-lost')?.value || '';
+
+  if(!fighterName || !title || !season){
+    alert('Fighter Name, Title, and Season are required.');
+    return;
+  }
+
+  const fighterKey = fighterName.toLowerCase();
+
+  const rawLines = ($('reign-defenses')?.value || '').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const defenses = rawLines.map(line=>{
+    const parts = line.includes('|') ? line.split('|').map(p=>p.trim()) : line.split('\t').map(p=>p.trim());
+    return {
+      date: parts[0] || '',
+      opponent: parts[1] || '',
+      event: parts[2] || '',
+      method: parts[3] || ''
+    };
+  });
+
+  try{
+    await db.collection('legacy_title_reigns').add({
+      fighterName,
+      fighterKey,
+      title,
+      season,
+      wonDate,
+      lostDate,
+      defenses
+    });
+    alert('Legacy reign saved.');
+  }catch(e){
+    console.error('saveLegacyReign error', e);
+    alert('Failed to save reign.');
+  }
+}
 
   
   /* Admin: delete fighter */
@@ -3506,7 +4849,92 @@ function mapTitleToField(title) {
 }
 
 
-  
+function populateLegacyReignDropdown(){
+  const sel = $('reign-select');
+  if(!sel) return;
+
+  const current = sel.value;
+  sel.innerHTML = `<option value="">-- New Reign --</option>`;
+
+  (legacyTitleReigns || [])
+    .slice()
+    .sort((a,b)=>{
+      const an = (a.fighterName||'').localeCompare(b.fighterName||'');
+      if(an !== 0) return an;
+      const as = (a.season||0) - (b.season||0);
+      if(as !== 0) return as;
+      return (a.title||'').localeCompare(b.title||'');
+    })
+    .forEach(r=>{
+      const opt = document.createElement('option');
+      opt.value = r.id;
+      opt.textContent = `${r.fighterName} — ${r.title} (S${r.season})`;
+      sel.appendChild(opt);
+    });
+
+  sel.value = current || '';
+}
+ 
+function clearLegacyReignForm(){
+  const sel = $('reign-select');
+  if (sel) sel.value = '';
+
+  $('reign-fighter').value = '';
+  $('reign-title').value = '';
+  $('reign-season').value = 2;
+  $('reign-won').value = '';
+  $('reign-lost').value = '';
+  $('reign-defenses').value = '';
+}
+
+function loadSelectedLegacyReign(){
+  const sel = $('reign-select');
+  const id = sel?.value || '';
+  if(!id) { clearLegacyReignForm(); return; }
+
+  const reign = (legacyTitleReigns || []).find(r => r.id === id);
+  if(!reign) { clearLegacyReignForm(); return; }
+
+  $('reign-fighter').value = reign.fighterName || '';
+  $('reign-title').value = reign.title || '';
+  $('reign-season').value = reign.season || 2;
+  $('reign-won').value = reign.wonDate || '';
+  $('reign-lost').value = reign.lostDate || '';
+
+  const defenses = Array.isArray(reign.defenses) ? reign.defenses : [];
+  $('reign-defenses').value = defenses
+    .map(d => `${d.date || ''} | ${d.opponent || ''} | ${d.event || ''} | ${d.method || ''}`.trim())
+    .join('\n');
+}
+
+async function deleteSelectedLegacyReign(){
+  const sel = $('reign-select');
+  const id = sel?.value || '';
+  if(!id) return alert('Select a reign to delete.');
+
+  const reign = (legacyTitleReigns || []).find(r => r.id === id);
+  const label = reign
+    ? `${reign.fighterName || 'Unknown'} — ${reign.title || 'Title'} (S${reign.season || '?'})`
+    : id;
+
+  if(!confirm(`Delete this reign?\n\n${label}`)) return;
+
+  try{
+    await db.collection('legacy_title_reigns').doc(id).delete();
+    clearLegacyReignForm();
+    alert('Reign deleted.');
+    // snapshot listener should refresh dropdown automatically
+  }catch(e){
+    console.error('deleteSelectedLegacyReign error', e);
+    alert('Failed to delete reign (check Firestore rules + console).');
+  }
+}
+
+function getLegacyManualNames(){
+  const recs = legacyManualRecords || {};
+  return Object.keys(recs).map(k => (recs[k]?.name || k)).filter(Boolean);
+}
+
   /* Inject admin social controls (YouTube save UI) */
   function injectAdminSocialControls(){
     if(!sessionStorage.getItem('isAdmin')) return;
@@ -3554,6 +4982,9 @@ function mapTitleToField(title) {
       tbody.appendChild(tr);
     });
   }
+
+
+
   
   /* ADMIN: Login / Logout (simple check against stored ADMIN_PW or fallback test password) */
   function attemptAdminLogin(){
@@ -3653,4 +5084,3 @@ function mapTitleToField(title) {
   </html>
   <!-- END Part 6 of 6 -->
         
-
