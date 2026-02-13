@@ -3024,6 +3024,93 @@ function countCAFFights() {
   console.log(`🥋 CAF fights detected: ${totalCAF}`);
 }
 
+// ---------------------------------------------
+// 🧮 TIEBREAKERS: Points → Head-to-Head → Recent → Name
+// ---------------------------------------------
+function _toTime(d) {
+  const t = Date.parse(d || '');
+  return Number.isFinite(t) ? t : 0;
+}
+
+function getLastFightTimeForCombined(combined, fightsSubset) {
+  const ids = combined?.ids || [];
+  let best = 0;
+
+  (fightsSubset || []).forEach(ft => {
+    const involved =
+      ids.includes(ft.fighter1) ||
+      ids.includes(ft.fighter2);
+
+    if (!involved) return;
+
+    const t = _toTime(ft.date);
+    if (t > best) best = t;
+  });
+
+  return best; // bigger = more recent
+}
+
+function getHeadToHeadWins(aCombined, bCombined, fightsSubset) {
+  const aIds = aCombined?.ids || [];
+  const bIds = bCombined?.ids || [];
+
+  let aWins = 0;
+  let bWins = 0;
+
+  (fightsSubset || []).forEach(ft => {
+    const aIn =
+      aIds.includes(ft.fighter1) ||
+      aIds.includes(ft.fighter2);
+
+    const bIn =
+      bIds.includes(ft.fighter1) ||
+      bIds.includes(ft.fighter2);
+
+    if (!(aIn && bIn)) return; // not head-to-head
+
+    const raw = ft?.winner;
+    const winStr = (raw == null ? '' : String(raw)).trim().toLowerCase();
+
+    // treat draws safely
+    const isDraw =
+      raw === 0 ||
+      raw === '0' ||
+      winStr === 'draw' ||
+      winStr === 'd' ||
+      winStr === '' ||
+      winStr === 'tie';
+
+    if (isDraw) return;
+
+    if (aIds.includes(raw)) aWins++;
+    else if (bIds.includes(raw)) bWins++;
+  });
+
+  return { aWins, bWins };
+}
+
+// Factory so we can reuse the same logic for WORLD / RBC / ABC
+function makeRankComparator(fightsSubset) {
+  return (a, b) => {
+    // 1) Points (DESC)
+    if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
+
+    // 2) Head-to-head (DESC)
+    const { aWins, bWins } = getHeadToHeadWins(a, b, fightsSubset);
+    if (aWins !== bWins) return bWins - aWins;
+
+    // 3) Recent activity (DESC) — more recent ranks higher
+    const aLast = getLastFightTimeForCombined(a, fightsSubset);
+    const bLast = getLastFightTimeForCombined(b, fightsSubset);
+    if (aLast !== bLast) return bLast - aLast;
+
+    // 4) Stable fallback: alphabetical (ASC)
+    return (a.name || '').localeCompare((b.name || ''), undefined, { sensitivity: 'base' });
+  };
+}
+
+
+
 function computeRankings(tab = window.currentTab || "world") {
   const combined = (typeof buildCombinedMap === 'function') ? buildCombinedMap() : [];
 
@@ -3099,7 +3186,9 @@ function computeRankings(tab = window.currentTab || "world") {
   });
 
   // sort descending
-  activeOnly.sort((a, b) => b.points - a.points);
+  // ✅ WORLD tie-break: points → h2h → recent → name (uses current fights array)
+activeOnly.sort(makeRankComparator(fights));
+
 
   // WORLD vs CAF split
   const world = activeOnly.filter(f => !f.isCAFAny);
@@ -3121,7 +3210,8 @@ function computeRankings(tab = window.currentTab || "world") {
       const pts = calcPointsWithFightsForIds(relevantIds, rbcFights);
       return { ...f, points: pts };
     })
-    .sort((a, b) => b.points - a.points)
+    .sort(makeRankComparator(rbcFights))
+
     .slice(0, 15);
 
   // --- 3) ABC fights only (NA vs NA) ---
@@ -3140,7 +3230,8 @@ function computeRankings(tab = window.currentTab || "world") {
       const pts = calcPointsWithFightsForIds(relevantIds, abcFights);
       return { ...f, points: pts };
     })
-    .sort((a, b) => b.points - a.points)
+    .sort(makeRankComparator(abcFights))
+
     .slice(0, 15);
 
   return { world, rbc, abc, caf };
@@ -3214,9 +3305,12 @@ if (typeof renderChampionCard === 'function') {
     console.warn('⚠️ renderRankings function missing');
   }
 
-  // Other UI sections
-  try { if (typeof renderPlayers === 'function') renderPlayers(); } catch(e){ console.error('renderPlayers error', e); }
-  try { if (typeof renderFights === 'function') renderFights(); } catch(e){ console.error('renderFights error', e); }
+// Other UI sections
+// ✅ Players tab removed — DO NOT call renderPlayers here, it mutates shared points and can desync rankings.
+// try { if (typeof renderPlayers === 'function') renderPlayers(); } catch(e){ console.error('renderPlayers error', e); }
+
+try { if (typeof renderFights === 'function') renderFights(); } catch(e){ console.error('renderFights error', e); }
+
 
 
 
