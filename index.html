@@ -2243,20 +2243,35 @@ badges.sort((a, b) => {
    =========================== */
 
    function renderLegacyFightListHTML(fightList, ids) {
-  const sorted = (fightList || []).slice().sort((a,b) => new Date(b.date) - new Date(a.date));
+  const sorted = (fightList || [])
+    .slice()
+    .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  const isDrawWinner = (raw) => {
+    const s = (raw == null ? '' : String(raw)).trim().toLowerCase();
+    return (
+      raw === 0 ||
+      raw === '0' ||
+      s === 'draw' ||
+      s === 'd' ||
+      s === 'tie' ||
+      s === ''
+    );
+  };
 
   return `
     <div style="display:grid; gap:8px;">
       ${sorted.map(f => {
         const oppId = ids.includes(f.fighter1) ? f.fighter2 : f.fighter1;
+
         const oppName =
           (fighters.find(x => x.id === oppId)?.name) ||
           (ids.includes(f.fighter1) ? f.fighter2Name : f.fighter1Name) ||
           'Unknown';
 
-        const result =
-          (f.winner === '0' || f.winner === 0) ? 'Draw' :
-          ids.includes(f.winner) ? 'Win' : 'Loss';
+        const result = isDrawWinner(f?.winner)
+          ? 'Draw'
+          : ids.includes(f?.winner) ? 'Win' : 'Loss';
 
         return `
           <div class="frosted" style="padding:10px;border-radius:10px;">
@@ -2271,6 +2286,7 @@ badges.sort((a, b) => {
     </div>
   `;
 }
+
 
 
 
@@ -3541,7 +3557,7 @@ const combined = [...base, ...s1Extras, ...manualExtras]
   }, { map: {}, list: [] }).list
   .sort((a,b)=> (a.name || '').localeCompare((b.name || ''), undefined, { sensitivity:'base' }));
 
-
+  container.innerHTML = '';
 
   combined.forEach(f => {
     const nameLower = (f.name || '').toLowerCase();
